@@ -1,18 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
-import { Printer, Copy, Check, FileCheck } from 'lucide-react';
+import { Printer, Copy, Check, Search, Loader2, Building, AlertCircle } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
 export function GeradoresPage() {
-  const [tipo, setTipo] = useState('recibo');
   const [copied, setCopied] = useState(false);
+  const [loadingCnpj, setLoadingCnpj] = useState(false);
+  const [cnpjStatus, setCnpjStatus] = useState('');
 
-  // Estados dos campos
   const [nomeBeneficiario, setNomeBeneficiario] = useState('João da Silva');
-  const [documento, setDocumento] = useState('123.456.789-00');
+  const [documento, setDocumento] = useState('60.746.948/0001-12');
   const [valor, setValor] = useState(1500);
-  const [referente, setReferente] = useState('Serviços de consultoria técnica em parametrização');
+  const [referente, setReferente] = useState('Serviços de consultoria técnica e parametrização tributária');
   const [dataDoc, setDataDoc] = useState(new Date().toLocaleDateString('pt-BR'));
+
+  // Funcao que consulta a Receita Federal diretamente
+  const consultarCnpjNaReceita = async (cnpjDigitado) => {
+    const limpo = cnpjDigitado.replace(/\D/g, '');
+    if (limpo.length !== 14) return;
+
+    setLoadingCnpj(true);
+    setCnpjStatus('Consultando base da Receita Federal...');
+
+    try {
+      const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${limpo}`);
+      if (!response.ok) {
+        throw new Error('CNPJ não localizado na base da Receita Federal.');
+      }
+      const data = await response.json();
+      if (data.razao_social) {
+        setNomeBeneficiario(data.razao_social);
+        setCnpjStatus(`✓ Localizado: ${data.razao_social} (${data.municipio || ''}-${data.uf || ''})`);
+      }
+    } catch (err) {
+      setCnpjStatus('⚠️ Não foi possível localizar a Razão Social para este CNPJ.');
+    } finally {
+      setLoadingCnpj(false);
+    }
+  };
+
+  const handleDocumentoChange = (e) => {
+    const valorDigitado = e.target.value;
+    setDocumento(valorDigitado);
+    const apenasNum = valorDigitado.replace(/\D/g, '');
+    if (apenasNum.length === 14) {
+      consultarCnpjNaReceita(apenasNum);
+    } else {
+      setCnpjStatus('');
+    }
+  };
 
   const documentoGerado = `RECIBO DE PAGAMENTO
 
@@ -43,7 +79,7 @@ Assinatura do Beneficiário`;
         </span>
         <h2 className="text-2xl font-extrabold text-slate-900 mt-2">Gerador Estruturado de Termos e Recibos</h2>
         <p className="text-xs text-slate-500 mt-0.5">
-          Preencha os campos ao lado para gerar documentos padronizados com cópia rápida e impressão formatada.
+          Digite qualquer CNPJ de 14 dígitos para preencher a Razão Social oficial automaticamente via Receita Federal.
         </p>
       </div>
 
@@ -55,7 +91,35 @@ Assinatura do Beneficiário`;
           </h3>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Nome do Beneficiário / Razão</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              CPF ou CNPJ (Busca Automática)
+            </label>
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={documento}
+                onChange={handleDocumentoChange}
+                placeholder="Digite o CNPJ..."
+                className="w-full pl-3.5 pr-10 py-2.5 rounded-xl glass-input text-sm font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => consultarCnpjNaReceita(documento)}
+                className="absolute right-2 p-1.5 text-slate-400 hover:text-brand-600 transition"
+                title="Consultar CNPJ na Receita"
+              >
+                {loadingCnpj ? <Loader2 className="w-4 h-4 animate-spin text-brand-600" /> : <Search className="w-4 h-4" />}
+              </button>
+            </div>
+            {cnpjStatus && (
+              <span className={`text-[11px] mt-1.5 block font-medium ${loadingCnpj ? 'text-brand-600' : cnpjStatus.startsWith('✓') ? 'text-emerald-600' : 'text-amber-600'}`}>
+                {cnpjStatus}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Nome do Beneficiário / Razão Social</label>
             <input
               type="text"
               value={nomeBeneficiario}
@@ -64,25 +128,14 @@ Assinatura do Beneficiário`;
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">CPF / CNPJ</label>
-              <input
-                type="text"
-                value={documento}
-                onChange={(e) => setDocumento(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm font-mono"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Valor (R$)</label>
-              <input
-                type="number"
-                value={valor}
-                onChange={(e) => setValor(parseFloat(e.target.value) || 0)}
-                className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm font-mono"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">Valor Líquido (R$)</label>
+            <input
+              type="number"
+              value={valor}
+              onChange={(e) => setValor(parseFloat(e.target.value) || 0)}
+              className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm font-mono"
+            />
           </div>
 
           <div>
@@ -119,13 +172,13 @@ Assinatura do Beneficiário`;
               </div>
             </div>
 
-            <pre className="p-4 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800 whitespace-pre-wrap leading-relaxed">
+            <pre className="p-4 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800 whitespace-pre-wrap leading-relaxed shadow-sm">
               {documentoGerado}
             </pre>
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-mono">
-            * Modelo administrativo padronizado pelo Grupo Qualibra.
+            * Consulta em tempo real integrada à base pública da Receita Federal.
           </div>
         </div>
       </div>
