@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
-import { ExternalLink, ShieldCheck, Filter } from 'lucide-react';
+import { ExternalLink, ShieldCheck, Filter, Search } from 'lucide-react';
 
 export function SistemasPage() {
   const [filterDept, setFilterDept] = useState('all');
+  const [search, setSearch] = useState('');
 
   const sistemas = [
     {
@@ -19,6 +20,20 @@ export function SistemasPage() {
       url: 'https://www8.receita.fazenda.gov.br/SimplesNacional/',
       depto: 'Fiscal',
       badge: 'Federal'
+    },
+    {
+      nome: 'Sintegra / CCC (Consulta de IE)',
+      desc: 'Cadastro Centralizado de Contribuintes para validação de Inscrições Estaduais de clientes e fornecedores.',
+      url: 'https://dfe-portal.svrs.rs.gov.br/NFE/CCC',
+      depto: 'Fiscal',
+      badge: 'Estadual'
+    },
+    {
+      nome: 'SEFAZ / Posto Fiscal Eletrônico',
+      desc: 'Consulta de Inscrição Estadual, DEC, emissão de guias de ICMS e conformidade fiscal.',
+      url: 'https://portal.fazenda.sp.gov.br/',
+      depto: 'Fiscal',
+      badge: 'Estadual'
     },
     {
       nome: 'eSocial Web Geral',
@@ -49,11 +64,11 @@ export function SistemasPage() {
       badge: 'Estadual'
     },
     {
-      nome: 'SEFAZ / Posto Fiscal Eletrônico',
-      desc: 'Consulta de Inscrição Estadual, DEC, emissão de guias de ICMS e conformidade fiscal.',
-      url: 'https://portal.fazenda.sp.gov.br/',
+      nome: 'Portal Nacional NFS-e / ISS',
+      desc: 'Emissão e consulta unificada de Notas Fiscais de Serviços Eletrônicas municipais.',
+      url: 'https://www.nfse.gov.br/EmissorNacional/',
       depto: 'Fiscal',
-      badge: 'Estadual'
+      badge: 'Municipal'
     },
     {
       nome: 'Portal Gov.br Empresas',
@@ -64,41 +79,52 @@ export function SistemasPage() {
     }
   ];
 
-  const filtered = sistemas.filter(
-    (s) => filterDept === 'all' || s.depto.toLowerCase() === filterDept.toLowerCase()
-  );
+  const filtered = sistemas.filter((s) => {
+    const matchesDept = filterDept === 'all' || s.depto.toLowerCase() === filterDept.toLowerCase();
+    const matchesSearch = s.nome.toLowerCase().includes(search.toLowerCase()) || s.desc.toLowerCase().includes(search.toLowerCase());
+    return matchesDept && matchesSearch;
+  });
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      <Breadcrumbs items={[{ label: 'Sistemas Oficiais Externos' }]} />
+    <div className="space-y-6 pb-12 animate-fade-in-up">
+      <div className="no-print"><Breadcrumbs items={[{ label: 'Sistemas Oficiais Externos' }]} /></div>
 
       <div className="glass-panel p-6 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-[10px] font-mono font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-1 rounded-full uppercase">
-            Acessos Oficiais Diretos
+            Acessos Oficiais Validados
           </span>
           <h2 className="text-2xl font-extrabold text-slate-900 mt-2">Sistemas Governamentais Oficiais</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Atalhos validados para os principais portais da Receita Federal, Fazenda Estadual, eSocial e Juntas Comerciais.
+            Atalhos protegidos contra phishing para Receita Federal, SEFAZ, Sintegra/CCC, Prefeituras e Juntas Comerciais.
           </p>
         </div>
 
-        {/* Filtros */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-          <Filter className="w-3.5 h-3.5 text-slate-400 ml-2 mr-1" />
-          {['all', 'Fiscal', 'DP', 'Societário'].map((d) => (
-            <button
-              key={d}
-              onClick={() => setFilterDept(d)}
-              className={`px-3 py-1 rounded-lg transition font-medium ${
-                filterDept === d
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {d === 'all' ? 'Todos' : d}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Filtrar portal..."
+              className="pl-8 pr-3 py-1.5 text-xs rounded-xl glass-input w-40 sm:w-56"
+            />
+          </div>
+
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+            {['all', 'Fiscal', 'DP', 'Societário'].map((d) => (
+              <button
+                key={d}
+                onClick={() => setFilterDept(d)}
+                className={`px-3 py-1 rounded-lg transition font-medium ${
+                  filterDept === d ? 'bg-brand-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {d === 'all' ? 'Todos' : d}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -113,7 +139,7 @@ export function SistemasPage() {
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-semibold">
                   {item.badge}
                 </span>
                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-brand-600 transition" />
@@ -127,7 +153,7 @@ export function SistemasPage() {
             </div>
 
             <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-brand-600 font-semibold">
-              <span>Abrir link oficial</span>
+              <span>Abrir portal oficial</span>
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             </div>
           </a>

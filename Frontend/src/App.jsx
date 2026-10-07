@@ -7,20 +7,20 @@ import { MainLayout } from './components/layout/MainLayout';
 import { IntroPage } from './features/intro/IntroPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 
-// Calculadoras Reais
+// Calculadoras
 import { SimuladorReformaPage } from './features/reforma/SimuladorReformaPage';
 import { SimuladorFatorRPage } from './features/fatorR/SimuladorFatorRPage';
 import { SimuladorSimplesPresumidoPage } from './features/simplesPresumido/SimuladorSimplesPresumidoPage';
 import { SimuladorRescisaoPage } from './features/rescisao/SimuladorRescisaoPage';
 import { SimuladorProlaborePage } from './features/prolabore/SimuladorProlaborePage';
-import { CalendarioFiscalPage } from './features/calendario/CalendarioFiscalPage';
+import { ComparadorCltPjPage } from './features/comparadores/ComparadorCltPjPage';
 
-// Ferramentas Reais & Processos
+// Obrigações, Checklists e Ferramentas
+import { CalendarioFiscalPage } from './features/calendario/CalendarioFiscalPage';
 import { ChecklistsPage } from './features/checklists/ChecklistsPage';
 import { DocumentosPage } from './features/documentos/DocumentosPage';
 import { GeradoresPage } from './features/geradores/GeradoresPage';
 import { DiagnosticosPage } from './features/diagnosticos/DiagnosticosPage';
-import { ComparadorCltPjPage } from './features/comparadores/ComparadorCltPjPage';
 import { SistemasPage } from './features/sistemas/SistemasPage';
 import { ConhecimentoPage } from './features/conhecimento/ConhecimentoPage';
 import { TiInfraPage } from './features/ti/TiInfraPage';
