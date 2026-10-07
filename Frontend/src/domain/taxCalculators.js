@@ -367,18 +367,80 @@ export function calculateRescisaoCLTCompleto({
   };
 }
 
-export function calculateProlabore({ valor = 0 }) {
-  const pl = Math.max(0, valor);
-  const inss = Math.min(pl * 0.11, 897.32);
-  const baseIrrf = Math.max(0, pl - inss);
-  let irrf = 0, aliq = 0;
-  if (baseIrrf <= 2259.20) { irrf = 0; aliq = 0; }
-  else if (baseIrrf <= 2826.65) { irrf = (baseIrrf * 0.075) - 169.44; aliq = 7.5; }
-  else if (baseIrrf <= 3751.05) { irrf = (baseIrrf * 0.15) - 381.44; aliq = 15.0; }
-  else if (baseIrrf <= 4664.68) { irrf = (baseIrrf * 0.225) - 662.77; aliq = 22.5; }
-  else { irrf = (baseIrrf * 0.275) - 896.00; aliq = 27.5; }
+export function calculateProlabore({ valor = 0, dependentes = 0 }) {
+  const plBruto = Math.max(0, valor);
+
+  // Teto Oficial RGPS 2026: R$ 8.157,41 x 11% = R$ 897,32
+  const tetoRgps2026 = 8157.41;
+  const tetoInssMaximo = 897.32;
+
+  const inssCalculado11 = plBruto * 0.11;
+  const atingiuTeto = plBruto >= tetoRgps2026;
+  const inssRetido = Math.min(inssCalculado11, tetoInssMaximo);
+
+  const labelInss = atingiuTeto 
+    ? "INSS (Teto RGPS 2026: R$ 897,32)" 
+    : "INSS (11% Contribuição Individual)";
+
+  // === REGRA DA MAIOR DEDUÇÃO DO IRPF (LEI 14.663 / RFB) ===
+  const deducaoLegalInssDep = inssRetido + (dependentes * 189.59);
+  const descontoSimplificado = 564.80; // Desconto simplificado mensal da RFB
+
+  const usouSimplificado = descontoSimplificado > deducaoLegalInssDep;
+  const maiorDeducaoAplicada = Math.max(descontoSimplificado, deducaoLegalInssDep);
+
+  const baseCalculoIrrf = Math.max(0, plBruto - maiorDeducaoAplicada);
+
+  // Tabela Progressiva do IRPF (RFB 2026)
+  let irrf = 0;
+  let aliqNominal = 0;
+  let parcelaDeducao = 0;
+
+  if (baseCalculoIrrf <= 2259.20) {
+    irrf = 0;
+    aliqNominal = 0;
+    parcelaDeducao = 0;
+  } else if (baseCalculoIrrf <= 2826.65) {
+    aliqNominal = 7.5;
+    parcelaDeducao = 169.44;
+    irrf = (baseCalculoIrrf * 0.075) - parcelaDeducao;
+  } else if (baseCalculoIrrf <= 3751.05) {
+    aliqNominal = 15.0;
+    parcelaDeducao = 381.44;
+    irrf = (baseCalculoIrrf * 0.15) - parcelaDeducao;
+  } else if (baseCalculoIrrf <= 4664.68) {
+    aliqNominal = 22.5;
+    parcelaDeducao = 659.44; // Parcela oficial correspondente ao enquadramento
+    irrf = (baseCalculoIrrf * 0.225) - parcelaDeducao;
+  } else {
+    aliqNominal = 27.5;
+    parcelaDeducao = 896.00;
+    irrf = (baseCalculoIrrf * 0.275) - parcelaDeducao;
+  }
+
   irrf = Math.max(0, irrf);
-  return { prolaboreBruto: pl, inss, irrf, aliquotaNominalIrrf: aliq, prolaboreLiquido: pl - inss - irrf, totalRetencoes: inss + irrf, aliquotaEfetiva: pl > 0 ? ((inss + irrf) / pl) * 100 : 0 };
+  const liquidoReceber = Math.max(0, plBruto - inssRetido - irrf);
+  const totalRetencoes = inssRetido + irrf;
+  const aliquotaEfetivaRetencao = plBruto > 0 ? (totalRetencoes / plBruto) * 100 : 0;
+
+  return {
+    prolaboreBruto: plBruto,
+    inss: inssRetido,
+    atingiuTeto,
+    labelInss,
+    baseCalculoIrrf,
+    maiorDeducaoAplicada,
+    usouSimplificado,
+    nomeMetodoDeducao: usouSimplificado 
+      ? `Desconto Simplificado RFB (R$ 564,80)` 
+      : `Dedução Legal do INSS (R$ ${inssRetido.toFixed(2)})`,
+    irrf,
+    aliqNominalIrrf: aliqNominal,
+    parcelaDeducao,
+    prolaboreLiquido: liquidoReceber,
+    totalRetencoes,
+    aliquotaEfetiva: aliquotaEfetivaRetencao
+  };
 }
 
 export function calculateCltVsPj({ salarioClt = 0, valorPj = 0, regimeEmpresa = 'simples' }) {
