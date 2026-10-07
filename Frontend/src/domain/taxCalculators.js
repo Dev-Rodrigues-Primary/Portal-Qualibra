@@ -220,42 +220,151 @@ export function calculateSimplesPresumidoExato({ faturamentoAnual = 0, folhaAnua
   };
 }
 
-export function calculateRescisaoCLTCompleto({ salarioBase = 0, diasTrabalhadosMes = 30, motivo = 'sem_justa_causa', meses13 = 0, feriasVencidasPeriodos = 0, mesesFeriasProporcionais = 0, anosCompletosCasa = 0, saldoFgts = 0 }) {
+export function calculateRescisaoCLTCompleto({
+  salarioBase = 0,
+  diasTrabalhadosMes = 30,
+  motivo = 'sem_justa_causa',
+  meses13 = 0,
+  feriasVencidasPeriodos = 0,
+  mesesFeriasProporcionais = 0,
+  anosCompletosCasa = 0,
+  saldoFgts = 0
+}) {
   const sal = Math.max(0, salarioBase);
+  const salDia = sal / 30;
+  const salMes = sal / 12;
   const diasMes = Math.min(30, Math.max(0, diasTrabalhadosMes));
   const anos = Math.max(0, anosCompletosCasa);
 
-  const saldoSalario = (sal / 30) * diasMes;
-  const inssSaldoSalario = calcularInssProgressivo(saldoSalario);
-  const irrfSaldoSalario = calcularIrrfProgressivo(saldoSalario - inssSaldoSalario);
+  // 1. Proventos: Saldo de Salário e Férias Vencidas
+  const saldoSalario = salDia * diasMes;
+  const feriasVencidas = feriasVencidasPeriodos * sal;
 
+  // 2. Proventos: Aviso Prévio Proporcional
   const diasAviso = Math.min(90, 30 + (anos * 3));
-  const valorAvisoIntegral = (sal / 30) * diasAviso;
-  const avosProjecao = Math.floor(diasAviso / 30);
-  const meses13Total = Math.min(12, meses13 + (motivo === 'sem_justa_causa' ? avosProjecao : 0));
-  const mesesFeriasTotal = Math.min(12, mesesFeriasProporcionais + (motivo === 'sem_justa_causa' ? avosProjecao : 0));
-
-  const decimoTerceiro = (sal / 12) * meses13Total;
-  const inss13 = calcularInssProgressivo(decimoTerceiro);
-  const irrf13 = calcularIrrfProgressivo(decimoTerceiro - inss13);
-
-  const feriasVencidas = feriasVencidasPeriodos * sal * (4 / 3);
-  const feriasProporcionais = ((sal / 12) * mesesFeriasTotal) * (4 / 3);
-  const totalFeriasGeral = feriasVencidas + feriasProporcionais;
-
-  let avisoPrevioAReceber = 0, multaFgts = 0, percentualMulta = 0, saqueFgtsPermitido = 0;
+  let valorAvisoIndenizado = 0;
+  
+  let multaPerc = 0;
+  let fgtsLiberadoStatus = true;
 
   if (motivo === 'sem_justa_causa') {
-    avisoPrevioAReceber = valorAvisoIntegral; percentualMulta = 40; multaFgts = saldoFgts * 0.40; saqueFgtsPermitido = saldoFgts + multaFgts;
+    valorAvisoIndenizado = salDia * diasAviso;
+    multaPerc = 0.40;
   } else if (motivo === 'acordo') {
-    avisoPrevioAReceber = valorAvisoIntegral * 0.50; percentualMulta = 20; multaFgts = saldoFgts * 0.20; saqueFgtsPermitido = (saldoFgts * 0.80) + multaFgts;
+    valorAvisoIndenizado = (salDia * diasAviso) * 0.50; // Lei 13.467 (Art 484-A): Metade do aviso
+    multaPerc = 0.20; // Metade da multa do FGTS
+  } else if (motivo === 'pedido') {
+    fgtsLiberadoStatus = false;
   } else if (motivo === 'justa_causa') {
-    return { saldoSalario, feriasVencidas, decimoTerceiro: 0, feriasProporcionais: 0, avisoPrevio: 0, diasAviso: 0, multaFgts: 0, totalLiquido: Math.max(0, saldoSalario + feriasVencidas - inssSaldoSalario - irrfSaldoSalario), saqueFgtsPermitido: 0 };
+    // Justa causa recebe apenas o vencido (saldo salário + férias vencidas c/ 1/3)
+    const baseFVenJusta = feriasVencidas;
+    const tercoFVenJusta = baseFVenJusta / 3;
+    const proventosGeraisJusta = saldoSalario + baseFVenJusta + tercoFVenJusta;
+    const inssSalJusta = calcularInssProgressivo(saldoSalario);
+    const irpfSalJusta = calcularIrrfProgressivo(saldoSalario - inssSalJusta);
+    return {
+      saldoSalario, avisoPrevio: 0, diasAviso: 0, decimoTerceiroTotal: 0, 
+      totalFeriasLiquido: baseFVenJusta + tercoFVenJusta, multaFgts: 0, percentualMulta: 0,
+      totalProventosTrct: proventosGeraisJusta, totalDescontos: inssSalJusta + irpfSalJusta,
+      liquidoRescisorioTrct: Math.max(0, proventosGeraisJusta - inssSalJusta - irpfSalJusta),
+      bases: { 
+        inssMensal: saldoSalario, valInssMensal: inssSalJusta, irpfMensal: Math.max(0, saldoSalario-inssSalJusta), valIrrfMensal: irpfSalJusta,
+        inss13: 0, valInss13: 0, irpf13: 0, valIrrf13: 0
+      },
+      guiaGRRF: 0,
+      saldoLiberadoCaixaFgts: 0
+    };
   }
 
-  const totalBruto = saldoSalario + avisoPrevioAReceber + decimoTerceiro + totalFeriasGeral + multaFgts;
-  const totalDescontos = inssSaldoSalario + irrfSaldoSalario + inss13 + irrf13;
-  return { saldoSalario, avisoPrevio: avisoPrevioAReceber, diasAviso, decimoTerceiro, feriasVencidas, feriasProporcionais, multaFgts, percentualMulta, saqueFgtsPermitido, totalBruto, totalDescontos, totalLiquido: totalBruto - totalDescontos };
+  // 3. Proventos: Projeção de Avos (Aviso Prévio soma avos de férias e 13º se for indenizado)
+  // Independente se paga 50% em dinheiro (acordo), a jurisprudencia determina 100% de projecao nos avos.
+  const avosProjecao = Math.floor(diasAviso / 30);
+  const meses13Total = Math.min(12, parseInt(meses13, 10) + (motivo !== 'pedido' ? avosProjecao : 0));
+  const mesesFeriasTotal = Math.min(12, parseInt(mesesFeriasProporcionais, 10) + (motivo !== 'pedido' ? avosProjecao : 0));
+
+  // Décimo Terceiro (Segregação Tributária Importante)
+  const decimoTerceiroDireito = (sal / 12) * parseInt(meses13, 10);
+  const decimoTerceiroAviso = (motivo !== 'pedido' && avosProjecao > 0) ? ((sal / 12) * avosProjecao) : 0;
+  const decimoTerceiroTotal = decimoTerceiroDireito + decimoTerceiroAviso;
+
+  // Férias (Totalmente isentas de IR/INSS em TRCT)
+  const feriasProporcionaisDireito = (sal / 12) * parseInt(mesesFeriasProporcionais, 10);
+  const feriasProporcionaisAviso = (motivo !== 'pedido' && avosProjecao > 0) ? ((sal / 12) * avosProjecao) : 0;
+  
+  const baseTotalFerias = feriasVencidas + feriasProporcionaisDireito + feriasProporcionaisAviso;
+  const tercoTotalFerias = baseTotalFerias / 3;
+  const totalFeriasLiquido = baseTotalFerias + tercoTotalFerias;
+
+  // ==============================================================
+  // MOTOR DE BASES DP: SEGREGANDO INSS E IRPF OFICIAL
+  // ==============================================================
+  // A - Competência Mensal normal
+  const baseInssMensal = saldoSalario; // O Aviso Indenizado NÃO sofre INSS, nem férias em TRCT
+  const inssMensalCalculado = calcularInssProgressivo(baseInssMensal);
+  const baseIrrfMensal = Math.max(0, baseInssMensal - inssMensalCalculado);
+  const irpfMensalCalculado = calcularIrrfProgressivo(baseIrrfMensal);
+
+  // B - Tributação Exclusiva (13º Salário Rescisório)
+  const baseInss13 = decimoTerceiroTotal;
+  const inss13Calculado = calcularInssProgressivo(baseInss13);
+  const baseIrrf13 = Math.max(0, baseInss13 - inss13Calculado);
+  const irpf13Calculado = calcularIrrfProgressivo(baseIrrf13);
+
+  const totalDescontosFuncionario = inssMensalCalculado + irpfMensalCalculado + inss13Calculado + irpf13Calculado;
+
+  const totalProventosTrct = saldoSalario + valorAvisoIndenizado + decimoTerceiroTotal + totalFeriasLiquido;
+  const liquidoRescisorioTrct = Math.max(0, totalProventosTrct - totalDescontosFuncionario);
+
+  // ==============================================================
+  // FGTS (Base da GRRF Empresa x Direito de Saque Sócio/Membro)
+  // ==============================================================
+  // Apenas Saldo de Salário e 13º têm incidência geral, porém sobre o Aviso Indenizado INCIDE APENAS O FGTS
+  const fgtsMensalApurado = (saldoSalario + valorAvisoIndenizado) * 0.08;
+  const fgts13Apurado = decimoTerceiroTotal * 0.08;
+  const baseRealDaMulta = saldoFgts + fgtsMensalApurado + fgts13Apurado; // Base Total Acumulada
+
+  const valorMulta = baseRealDaMulta * multaPerc;
+
+  let saldoLiberadoCaixaFgts = 0;
+  if (motivo === 'sem_justa_causa') {
+    saldoLiberadoCaixaFgts = baseRealDaMulta + valorMulta; // Trabalhador pega 100% lá na Caixa
+  } else if (motivo === 'acordo') {
+    saldoLiberadoCaixaFgts = (baseRealDaMulta * 0.80) + valorMulta; // Art. 484-A limita a saque de 80% do saldo original + a multa.
+  }
+
+  // O Total que a empresa PAGA DA GRRF Mês: os depositos pendentes daquele TRCT + Multa Acumulada
+  const guiaGRRF_EmpresaPagar = fgtsMensalApurado + fgts13Apurado + valorMulta;
+
+  return {
+    // Info Cadastral Exibição
+    saldoSalario, avisoPrevio: valorAvisoIndenizado, diasAviso,
+    decimoTerceiroTotal, feriasVencidas, feriasProporcionais: baseTotalFerias + tercoTotalFerias - (feriasVencidas + (feriasVencidas/3)),
+    totalFeriasLiquido,
+
+    // TRCT LÍQUIDO E BRUTO EMPRESA/FUNCIONARIO
+    totalProventosTrct,
+    totalDescontos: totalDescontosFuncionario,
+    liquidoRescisorioTrct,
+
+    // MATRIZ DE DECOMPOSIÇÃO / DP
+    bases: {
+      inssMensal: baseInssMensal,
+      valInssMensal: inssMensalCalculado,
+      irpfMensal: baseIrrfMensal,
+      valIrrfMensal: irpfMensalCalculado,
+      inss13: baseInss13,
+      valInss13: inss13Calculado,
+      irpf13: baseIrrf13,
+      valIrrf13: irpf13Calculado
+    },
+
+    // INFORMAÇÕES EXTRAS EXTRA-TRCT
+    multaFgts: valorMulta,
+    percentualMulta: multaPerc * 100,
+    saldoFgtsAcumuladoBaseDaMulta: baseRealDaMulta, // Devolve esse numero para que faça logica a multa pro analista
+    guiaGRRF: guiaGRRF_EmpresaPagar,
+    saldoLiberadoCaixaFgts
+  };
 }
 
 export function calculateProlabore({ valor = 0 }) {
