@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePortal } from '../../context/PortalContext';
+import { QualibraLogo } from '../common/QualibraLogo';
 import {
-  Box, Clock, Search, ArrowLeft, Menu, X, LayoutGrid,
+  Clock, Search, ArrowLeft, Menu, X, LayoutGrid,
   Calculator, CheckSquare, CalendarDays, FileText, Printer,
-  BarChart3, ExternalLink, BookOpen, Server, Scale, Coins, Lightbulb
+  BarChart3, ExternalLink, BookOpen, Server, Scale, Coins, Lightbulb, Phone
 } from 'lucide-react';
 
 export function Navbar() {
@@ -55,49 +56,32 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 glass-panel px-4 lg:px-8 py-3">
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-md px-4 lg:px-8 py-2.5 shadow-2xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
-          {/* Lado Esquerdo: Menu Drawer + Logo */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             <button
               onClick={() => setDrawerOpen(true)}
-              className="p-2 rounded-xl text-slate-600 hover:text-brand-700 hover:bg-slate-100 border border-slate-200 transition flex items-center gap-2"
+              className="p-2 rounded-xl text-slate-600 hover:text-amber-600 hover:bg-amber-50/50 border border-slate-200 transition flex items-center gap-2 cursor-pointer"
               title="Abrir Menu de Navegação"
             >
               <Menu className="w-5 h-5 text-slate-700" />
-              <span className="hidden sm:inline text-xs font-semibold">Menu</span>
+              <span className="hidden sm:inline text-xs font-bold text-slate-800">Menu</span>
             </button>
 
-            <Link to="/dashboard" className="flex items-center space-x-3 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 p-0.5 shadow-sm group-hover:scale-105 transition-transform">
-                <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                  <Box className="w-4 h-4 text-brand-600" />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900 text-sm sm:text-base tracking-tight group-hover:text-brand-600 transition-colors">
-                    GRUPO QUALIBRA
-                  </span>
-                  <span className="hidden md:inline bg-brand-50 text-brand-700 border border-brand-200 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase">
-                    Servidor Operacional
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 font-mono hidden sm:block">PORTAL DE FERRAMENTAS & ROTINAS</p>
-              </div>
+            <Link to="/dashboard" className="group cursor-pointer">
+              <QualibraLogo size="md" showText={true} />
             </Link>
           </div>
 
-          {/* Centro: Barra de Busca */}
           <div className="hidden md:flex items-center">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="flex items-center space-x-3 bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 text-slate-500 hover:text-slate-800 px-4 py-2 rounded-xl text-xs transition min-w-[320px] justify-between shadow-inner"
+              className="flex items-center space-x-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 px-4 py-2 rounded-xl text-xs transition min-w-[320px] justify-between shadow-2xs"
             >
               <div className="flex items-center gap-2">
-                <Search className="w-3.5 h-3.5 text-brand-600" />
-                <span>Buscar ferramentas, cálculos, checklists...</span>
+                <Search className="w-3.5 h-3.5 text-amber-500" />
+                <span>Buscar ferramentas, cálculos, rotinas...</span>
               </div>
               <kbd className="font-mono text-[10px] bg-white border border-slate-300 px-1.5 py-0.5 rounded text-slate-400">
                 /
@@ -105,29 +89,30 @@ export function Navbar() {
             </button>
           </div>
 
-          {/* Lado Direito: Ideias + Relógio + Hub */}
-          <div className="flex items-center space-x-2 sm:space-x-2.5">
-            {/* Botão de Enviar Ideia */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="hidden xl:flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-mono font-bold text-slate-700">
+              <Phone className="w-3.5 h-3.5 text-amber-500" />
+              <span>(11) 2897-4595</span>
+            </div>
+
             <Link
               to="/ideias"
-              className="flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm"
+              className="flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs"
               title="Enviar uma Ideia de melhoria para o Portal"
             >
               <Lightbulb className="w-3.5 h-3.5 text-amber-600 fill-amber-400" />
-              <span className="hidden sm:inline">Enviar Ideia</span>
+              <span className="hidden sm:inline">Ideias</span>
             </Link>
 
-            {/* Relógio */}
             <div className="hidden lg:flex items-center space-x-1.5 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-mono text-slate-700">
-              <Clock className="w-3.5 h-3.5 text-brand-600" />
+              <Clock className="w-3.5 h-3.5 text-slate-500" />
               <span>{time || '--:--:--'}</span>
             </div>
 
-            {/* Hub Geral */}
             {!isHome && (
               <Link
                 to="/dashboard"
-                className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl text-xs font-medium transition shadow-sm"
+                className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-xs"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Hub Geral</span>
@@ -137,19 +122,15 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* Drawer Lateral */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
             onClick={() => setDrawerOpen(false)}
           />
           <div className="relative w-full max-w-sm bg-white h-full shadow-2xl border-r border-slate-200 flex flex-col z-10 animate-fade-in-up">
             <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <div className="flex items-center gap-2">
-                <Box className="w-5 h-5 text-brand-600" />
-                <span className="font-bold text-slate-900 text-sm">Navegação Operacional</span>
-              </div>
+              <QualibraLogo size="sm" showText={true} />
               <button
                 onClick={() => setDrawerOpen(false)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
@@ -162,10 +143,10 @@ export function Navbar() {
               <Link
                 to="/dashboard"
                 onClick={() => setDrawerOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-xl bg-brand-50 text-brand-800 font-bold text-xs border border-brand-200"
+                className="flex items-center gap-3 p-3 rounded-xl bg-amber-50/70 text-amber-950 font-bold text-xs border border-amber-200/80"
               >
-                <LayoutGrid className="w-4 h-4 text-brand-600" />
-                <span>Painel Principal (Hub Geral)</span>
+                <LayoutGrid className="w-4 h-4 text-amber-600" />
+                <span>Painel Operacional Completo</span>
               </Link>
 
               {menuSections.map((sec, idx) => (
@@ -181,7 +162,7 @@ export function Navbar() {
                           key={itemIdx}
                           to={item.path}
                           onClick={() => setDrawerOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:text-brand-700 hover:bg-slate-100 transition"
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-amber-600 hover:bg-slate-50 transition"
                         >
                           <Icon className="w-4 h-4 text-slate-400" />
                           <span>{item.label}</span>
@@ -193,8 +174,9 @@ export function Navbar() {
               ))}
             </div>
 
-            <div className="p-4 border-t border-slate-200 bg-slate-50 text-[11px] font-mono text-slate-500">
-              IP: 192.168.191.204 • Servidor Qualibra
+            <div className="p-4 border-t border-slate-200 bg-slate-50 text-[11px] font-mono text-slate-500 flex justify-between items-center">
+              <span>(11) 2897-4595</span>
+              <span>Qualibra v3.0</span>
             </div>
           </div>
         </div>
@@ -202,3 +184,5 @@ export function Navbar() {
     </>
   );
 }
+
+export default Navbar;

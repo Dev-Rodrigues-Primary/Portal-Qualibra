@@ -2,20 +2,26 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const PortalContext = createContext();
 
+const DEFAULT_FAVORITES = ['reforma-tributaria', 'fator-r', 'calendario-fiscal'];
+
 export function PortalProvider({ children }) {
   const [favorites, setFavorites] = useState(() => {
     try {
       const saved = localStorage.getItem('qualibra_favorites');
-      return saved ? JSON.parse(saved) : ['reforma-tributaria', 'fator-r', 'calendario-fiscal'];
+      if (!saved) return DEFAULT_FAVORITES;
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : DEFAULT_FAVORITES;
     } catch {
-      return ['reforma-tributaria', 'fator-r', 'calendario-fiscal'];
+      return DEFAULT_FAVORITES;
     }
   });
 
   const [recentItems, setRecentItems] = useState(() => {
     try {
       const saved = localStorage.getItem('qualibra_recents');
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
@@ -24,22 +30,35 @@ export function PortalProvider({ children }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('qualibra_favorites', JSON.stringify(favorites));
+    try {
+      localStorage.setItem('qualibra_favorites', JSON.stringify(favorites));
+    } catch (e) {}
   }, [favorites]);
 
   useEffect(() => {
-    localStorage.setItem('qualibra_recents', JSON.stringify(recentItems));
+    try {
+      localStorage.setItem('qualibra_recents', JSON.stringify(recentItems));
+    } catch (e) {}
   }, [recentItems]);
 
   const toggleFavorite = (itemId) => {
-    setFavorites((prev) =>
-      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
-    );
+    if (!itemId) return;
+    setFavorites((prev) => {
+      const arr = Array.isArray(prev) ? prev : DEFAULT_FAVORITES;
+      return arr.includes(itemId) ? arr.filter((id) => id !== itemId) : [...arr, itemId];
+    });
+  };
+
+  const isFavorite = (itemId) => {
+    if (!itemId || !Array.isArray(favorites)) return false;
+    return favorites.includes(itemId);
   };
 
   const registerAccess = (item) => {
+    if (!item || !item.id) return;
     setRecentItems((prev) => {
-      const filtered = prev.filter((r) => r.id !== item.id);
+      const arr = Array.isArray(prev) ? prev : [];
+      const filtered = arr.filter((r) => r && r.id !== item.id);
       return [item, ...filtered].slice(0, 8);
     });
   };
@@ -47,10 +66,10 @@ export function PortalProvider({ children }) {
   return (
     <PortalContext.Provider
       value={{
-        favorites,
+        favorites: Array.isArray(favorites) ? favorites : DEFAULT_FAVORITES,
         toggleFavorite,
-        isFavorite: (id) => favorites.includes(id),
-        recentItems,
+        isFavorite,
+        recentItems: Array.isArray(recentItems) ? recentItems : [],
         registerAccess,
         isSearchOpen,
         setIsSearchOpen

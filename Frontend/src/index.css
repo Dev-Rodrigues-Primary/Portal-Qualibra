@@ -6,34 +6,66 @@
   body {
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
-    background-color: #f8fafc; /* Fundo claro padrão */
+    background-color: #f8fafc;
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
   }
 }
 
 @layer components {
-  /* Painel principal limpo e claro */
+  /* Painel Glassmorphism Claro */
   .glass-panel {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
   }
 
-  /* Cartões interativos (Hover leve) */
+  /* Cartões com Hover Brilhante Prismático Qualibra */
   .glass-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
+  
   .glass-card:hover {
-    border-color: #10b981;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1);
+    transform: translateY(-3px);
+    border-color: rgba(245, 158, 11, 0.4);
+    /* Brilho multicolorido inspirado na logo: Laranja + Roxo + Esmeralda */
+    box-shadow: 
+      0 12px 24px -6px rgba(245, 158, 11, 0.12),
+      0 4px 12px -2px rgba(139, 92, 246, 0.1),
+      0 0 0 1px rgba(16, 185, 129, 0.2);
   }
 
-  /* Inputs Limpos */
+  /* Efeito de Reflexo Brilhante em Elementos Especiais */
+  .qualibra-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .qualibra-shine::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      60deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 70%
+    );
+    transform: rotate(30deg) translateY(-100%);
+    transition: transform 0.6s ease-in-out;
+    pointer-events: none;
+  }
+  .qualibra-shine:hover::after {
+    transform: rotate(30deg) translateY(100%);
+  }
+
+  /* Inputs Limpos e Precisos */
   .glass-input {
     background: #ffffff;
     border: 1px solid #cbd5e1;
@@ -41,8 +73,8 @@
     transition: all 0.2s ease-in-out;
   }
   .glass-input:focus {
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
     outline: none;
   }
 }
@@ -50,7 +82,7 @@
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
 
 @media print {
   header, footer, nav, button, .no-print, #bg-canvas, .menu-drawer { display: none !important; }
