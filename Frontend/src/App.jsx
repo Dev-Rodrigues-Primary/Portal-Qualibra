@@ -24,6 +24,7 @@ import { ComparadorCltPjPage } from './features/comparadores/ComparadorCltPjPage
 import { SistemasPage } from './features/sistemas/SistemasPage';
 import { ConhecimentoPage } from './features/conhecimento/ConhecimentoPage';
 import { TiInfraPage } from './features/ti/TiInfraPage';
+import { EnvioIdeiasPage } from './features/ideias/EnvioIdeiasPage';
 
 export function App() {
   return (
@@ -34,7 +35,7 @@ export function App() {
             <Route index element={<IntroPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
 
-            {/* Calculadoras e Comparadores Fiscais/Trabalhistas */}
+            {/* Calculadoras e Comparadores */}
             <Route path="ferramentas/reforma-tributaria" element={<SimuladorReformaPage />} />
             <Route path="ferramentas/fator-r" element={<SimuladorFatorRPage />} />
             <Route path="ferramentas/simples-presumido" element={<SimuladorSimplesPresumidoPage />} />
@@ -51,6 +52,9 @@ export function App() {
             <Route path="sistemas" element={<SistemasPage />} />
             <Route path="conhecimento" element={<ConhecimentoPage />} />
             <Route path="ti" element={<TiInfraPage />} />
+
+            {/* Envio de Ideias com Notificação */}
+            <Route path="ideias" element={<EnvioIdeiasPage />} />
 
             {/* Redirecionamento de segurança */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

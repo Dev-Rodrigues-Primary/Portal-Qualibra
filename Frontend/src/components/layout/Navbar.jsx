@@ -5,7 +5,7 @@ import { usePortal } from '../../context/PortalContext';
 import {
   Box, Clock, Search, ArrowLeft, Menu, X, LayoutGrid,
   Calculator, CheckSquare, CalendarDays, FileText, Printer,
-  BarChart3, ExternalLink, BookOpen, Server, Scale, Coins
+  BarChart3, ExternalLink, BookOpen, Server, Scale, Coins, Lightbulb
 } from 'lucide-react';
 
 export function Navbar() {
@@ -42,8 +42,9 @@ export function Navbar() {
       ]
     },
     {
-      title: 'Suporte & Referência',
+      title: 'Suporte, Inovação & TI',
       items: [
+        { label: '💡 Enviar Ideia / Sugestão', path: '/ideias', icon: Lightbulb },
         { label: 'Sistemas Governamentais Oficiais', path: '/sistemas', icon: ExternalLink },
         { label: 'Modelos de Documentos & Tabelas', path: '/documentos', icon: FileText },
         { label: 'Base de Conhecimento (Wiki)', path: '/conhecimento', icon: BookOpen },
@@ -57,7 +58,7 @@ export function Navbar() {
       <header className="sticky top-0 z-40 border-b border-slate-200/80 glass-panel px-4 lg:px-8 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
-          {/* Lado Esquerdo: Botão Menu Drawer + Identidade Visual */}
+          {/* Lado Esquerdo: Menu Drawer + Logo */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             <button
               onClick={() => setDrawerOpen(true)}
@@ -88,7 +89,7 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Centro: Barra de Busca Minimalista */}
+          {/* Centro: Barra de Busca */}
           <div className="hidden md:flex items-center">
             <button
               onClick={() => setIsSearchOpen(true)}
@@ -104,32 +105,25 @@ export function Navbar() {
             </button>
           </div>
 
-          {/* Lado Direito: Ações, Status e Relógio */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3">
-            {/* Botão de busca mobile */}
-            <button
-              onClick={() => setIsSearchOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
+          {/* Lado Direito: Ideias + Relógio + Hub */}
+          <div className="flex items-center space-x-2 sm:space-x-2.5">
+            {/* Botão de Enviar Ideia */}
+            <Link
+              to="/ideias"
+              className="flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm"
+              title="Enviar uma Ideia de melhoria para o Portal"
             >
-              <Search className="w-4 h-4" />
-            </button>
+              <Lightbulb className="w-3.5 h-3.5 text-amber-600 fill-amber-400" />
+              <span className="hidden sm:inline">Enviar Ideia</span>
+            </Link>
 
-            {/* Relógio em tempo real */}
-            <div className="hidden sm:flex items-center space-x-1.5 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-mono text-slate-700">
+            {/* Relógio */}
+            <div className="hidden lg:flex items-center space-x-1.5 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-mono text-slate-700">
               <Clock className="w-3.5 h-3.5 text-brand-600" />
               <span>{time || '--:--:--'}</span>
             </div>
 
-            {/* Status da Rede Local */}
-            <div className="hidden lg:flex items-center space-x-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-medium text-emerald-700">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span>Online Local</span>
-            </div>
-
-            {/* Botão de Voltar ao Hub */}
+            {/* Hub Geral */}
             {!isHome && (
               <Link
                 to="/dashboard"
@@ -143,16 +137,13 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* Menu Drawer Lateral Suave */}
+      {/* Drawer Lateral */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex">
-          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
             onClick={() => setDrawerOpen(false)}
           />
-
-          {/* Painel do Drawer */}
           <div className="relative w-full max-w-sm bg-white h-full shadow-2xl border-r border-slate-200 flex flex-col z-10 animate-fade-in-up">
             <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-2">
