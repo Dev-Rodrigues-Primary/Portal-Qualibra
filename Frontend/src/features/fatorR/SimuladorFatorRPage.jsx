@@ -16,8 +16,8 @@ export function SimuladorFatorRPage() {
           <label className="flex gap-2 text-xs"><input type="checkbox" checked={teto} onChange={e=>setTeto(e.target.checked)}/>Sócio no Teto do INSS em outro CNPJ</label>
         </div>
         <div className="glass-panel p-6 rounded-2xl border space-y-4">
-          <div className="text-3xl font-bold text-brand-600">{formatPercent(res.fatorR)} <span className="text-sm font-normal text-slate-500">({res.anexo})</span></div>
-          <div className="p-4 bg-slate-50 rounded-xl space-y-2 text-xs font-mono">
+          <div className="text-3xl font-bold font-mono text-brand-600">{formatPercent(res.fatorR)} <span className="text-sm font-normal text-slate-500">({res.anexo})</span></div>
+          <div className="p-5 bg-white border border-slate-100 shadow-sm rounded-2xl space-y-2.5 text-xs font-mono">
             <div className="flex justify-between"><span>Diferença Bruta DAS:</span><span className="text-emerald-600 font-bold">+{formatCurrency(res.diferencaDasBruta)}</span></div>
             <div className="flex justify-between"><span>Custo Extra INSS Sócio:</span><span className="text-rose-600">-{formatCurrency(res.inssSocioIncremental)}</span></div>
             <div className="flex justify-between"><span>Custo Extra IRPF Sócio:</span><span className="text-rose-600">-{formatCurrency(res.irpfSocioIncremental)}</span></div>

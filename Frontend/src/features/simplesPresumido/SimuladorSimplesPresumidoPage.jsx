@@ -19,8 +19,8 @@ export function SimuladorSimplesPresumidoPage() {
             {res.simplesVence ? `Simples vence por ${formatCurrency(res.economiaAnual)}` : `Presumido vence por ${formatCurrency(res.economiaAnual)}`}
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="border p-4 rounded-xl text-center"><div className="text-xs text-slate-500">Simples Nacional</div><div className="text-lg font-bold">{formatCurrency(res.totalSimples)}</div></div>
-            <div className="border p-4 rounded-xl text-center"><div className="text-xs text-slate-500">Lucro Presumido (+CPP 28.3%)</div><div className="text-lg font-bold text-brand-600">{formatCurrency(res.totalPresumido)}</div></div>
+            <div className="border p-4 rounded-xl text-center"><div className="text-xs text-slate-500">Simples Nacional</div><div className="text-2xl font-bold font-mono text-slate-900 mt-1">{formatCurrency(res.totalSimples)}</div></div>
+            <div className="border p-4 rounded-xl text-center"><div className="text-xs text-slate-500">Lucro Presumido (+CPP 28.3%)</div><div className="text-2xl font-bold font-mono text-brand-600 mt-1">{formatCurrency(res.totalPresumido)}</div></div>
           </div>
         </div>
       </div>
