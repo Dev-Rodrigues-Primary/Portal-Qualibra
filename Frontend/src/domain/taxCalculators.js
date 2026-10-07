@@ -1,26 +1,31 @@
-/**
- * TABELAS OFICIAIS DO SIMPLES NACIONAL (LC 123/2006)
- * Anexo I (Comércio) e Anexo III (Serviços)
- */
-const TABELA_ANEXO_I = [
-  { limite: 180000, aliq: 0.0400, deducao: 0 },
-  { limite: 360000, aliq: 0.0730, deducao: 5940 },
-  { limite: 720000, aliq: 0.0950, deducao: 13860 },
-  { limite: 1800000, aliq: 0.1070, deducao: 22500 },
-  { limite: 3600000, aliq: 0.1430, deducao: 87300 },
-  { limite: 4800000, aliq: 0.1900, deducao: 378000 }
+export const TABELA_ANEXO_I = [
+  { limite: 180000, aliq: 0.0400, deducao: 0, icmsPart: 0.3400, pisPart: 0.0276, cofinsPart: 0.1274 },
+  { limite: 360000, aliq: 0.0730, deducao: 5940, icmsPart: 0.3400, pisPart: 0.0276, cofinsPart: 0.1274 },
+  { limite: 720000, aliq: 0.0950, deducao: 13860, icmsPart: 0.3350, pisPart: 0.0300, cofinsPart: 0.1380 },
+  { limite: 1800000, aliq: 0.1070, deducao: 22500, icmsPart: 0.3350, pisPart: 0.0300, cofinsPart: 0.1380 },
+  { limite: 3600000, aliq: 0.1430, deducao: 87300, icmsPart: 0.3350, pisPart: 0.0300, cofinsPart: 0.1380 },
+  { limite: 4800000, aliq: 0.1900, deducao: 378000, icmsPart: 0.0000, pisPart: 0.0350, cofinsPart: 0.1600 }
 ];
 
-const TABELA_ANEXO_III = [
-  { limite: 180000, aliq: 0.0600, deducao: 0 },
-  { limite: 360000, aliq: 0.1120, deducao: 9360 },
-  { limite: 720000, aliq: 0.1350, deducao: 17640 },
-  { limite: 1800000, aliq: 0.1600, deducao: 35640 },
-  { limite: 3600000, aliq: 0.2100, deducao: 125640 },
-  { limite: 4800000, aliq: 0.3300, deducao: 648000 }
+export const TABELA_ANEXO_III = [
+  { limite: 180000, aliq: 0.0600, deducao: 0, issPart: 0.3350, pisPart: 0.0276, cofinsPart: 0.1274 },
+  { limite: 360000, aliq: 0.1120, deducao: 9360, issPart: 0.3350, pisPart: 0.0276, cofinsPart: 0.1274 },
+  { limite: 720000, aliq: 0.1350, deducao: 17640, issPart: 0.3250, pisPart: 0.0300, cofinsPart: 0.1380 },
+  { limite: 1800000, aliq: 0.1600, deducao: 35640, issPart: 0.3250, pisPart: 0.0300, cofinsPart: 0.1380 },
+  { limite: 3600000, aliq: 0.2100, deducao: 125640, issPart: 0.3250, pisPart: 0.0300, cofinsPart: 0.1380 },
+  { limite: 4800000, aliq: 0.3300, deducao: 648000, issPart: 0.0000, pisPart: 0.0350, cofinsPart: 0.1600 }
 ];
 
-const TABELA_ANEXO_V = [
+export const TABELA_ANEXO_IV = [
+  { limite: 180000, aliq: 0.0450, deducao: 0, issPart: 0.4400, pisPart: 0.0350, cofinsPart: 0.1600 },
+  { limite: 360000, aliq: 0.0900, deducao: 8100, issPart: 0.4400, pisPart: 0.0350, cofinsPart: 0.1600 },
+  { limite: 720000, aliq: 0.1020, deducao: 12420, issPart: 0.4000, pisPart: 0.0350, cofinsPart: 0.1600 },
+  { limite: 1800000, aliq: 0.1400, deducao: 39780, issPart: 0.4000, pisPart: 0.0350, cofinsPart: 0.1600 },
+  { limite: 3600000, aliq: 0.2200, deducao: 183780, issPart: 0.4000, pisPart: 0.0350, cofinsPart: 0.1600 },
+  { limite: 4800000, aliq: 0.3300, deducao: 579780, issPart: 0.0000, pisPart: 0.0350, cofinsPart: 0.1600 }
+];
+
+export const TABELA_ANEXO_V = [
   { limite: 180000, aliq: 0.1550, deducao: 0 },
   { limite: 360000, aliq: 0.1800, deducao: 4500 },
   { limite: 720000, aliq: 0.1950, deducao: 9900 },
@@ -29,371 +34,225 @@ const TABELA_ANEXO_V = [
   { limite: 4800000, aliq: 0.3050, deducao: 540000 }
 ];
 
-function calcularAliquotaEfetivaSimples(rbt12, tabela) {
+export function calcularAliquotaSimples(rbt12, tabela) {
   const rbt = Math.max(1, rbt12);
   let faixa = tabela[tabela.length - 1];
   for (const f of tabela) {
-    if (rbt <= f.limite) {
-      faixa = f;
-      break;
-    }
+    if (rbt <= f.limite) { faixa = f; break; }
   }
   const aliqEfetiva = ((rbt * faixa.aliq) - faixa.deducao) / rbt;
-  return Math.max(0.04, Math.min(0.33, aliqEfetiva));
+  return { aliqEfetiva: Math.max(0.04, Math.min(0.33, aliqEfetiva)), faixa };
 }
 
-/**
- * 1. REFORMA TRIBUTÁRIA (LC 214/2025 & IBS/CBS)
- */
-export function calculateReforma({ rbt12 = 0, recServ = 0, recCom = 0, compras = 0, ano = 2027 }) {
+export function calcularInssProgressivo(salarioBruto) {
+  const sal = Math.max(0, salarioBruto);
+  const base = Math.min(sal, 8157.41);
+  let inss = 0;
+  if (base <= 1518.00) inss = base * 0.075;
+  else if (base <= 2793.88) inss = (1518.00 * 0.075) + ((base - 1518.00) * 0.09);
+  else if (base <= 4190.83) inss = (1518.00 * 0.075) + ((2793.88 - 1518.00) * 0.09) + ((base - 2793.88) * 0.12);
+  else inss = (1518.00 * 0.075) + ((2793.88 - 1518.00) * 0.09) + ((4190.83 - 2793.88) * 0.12) + ((base - 4190.83) * 0.14);
+  return Math.min(inss, 951.63);
+}
+
+export function calcularIrrfProgressivo(baseCalculo, dependentes = 0) {
+  const deducaoLegal = dependentes * 189.59;
+  const descontoSimplificado = 564.80;
+  const baseTributavel = Math.max(0, baseCalculo - Math.max(deducaoLegal, descontoSimplificado));
+  let irrf = 0;
+  if (baseTributavel <= 2259.20) irrf = 0;
+  else if (baseTributavel <= 2826.65) irrf = (baseTributavel * 0.075) - 169.44;
+  else if (baseTributavel <= 3751.05) irrf = (baseTributavel * 0.15) - 381.44;
+  else if (baseTributavel <= 4664.68) irrf = (baseTributavel * 0.225) - 662.77;
+  else irrf = (baseTributavel * 0.275) - 896.00;
+  return Math.max(0, irrf);
+}
+
+export function calculateReformaIntegral({ rbt12 = 0, recServ = 0, recCom = 0, compras = 0, ano = 2027, publicoAlvo = 'B2B', reducaoSetorial = 0 }) {
   const safeRbt = Math.max(1000, rbt12);
   const safeServ = Math.max(0, recServ);
   const safeCom = Math.max(0, recCom);
   const safeCompras = Math.max(0, compras);
 
-  // Alíquotas efetivas progressivas reais da LC 123/2006
-  const aliqSimplesServ = calcularAliquotaEfetivaSimples(safeRbt, TABELA_ANEXO_III);
-  const aliqSimplesCom = calcularAliquotaEfetivaSimples(safeRbt, TABELA_ANEXO_I);
+  const { aliqEfetiva: aliqSimplesServ, faixa: faixaServ } = calcularAliquotaSimples(safeRbt, TABELA_ANEXO_III);
+  const { aliqEfetiva: aliqSimplesCom, faixa: faixaCom } = calcularAliquotaSimples(safeRbt, TABELA_ANEXO_I);
 
   const dasSimplesServ = safeServ * aliqSimplesServ;
   const dasSimplesCom = safeCom * aliqSimplesCom;
   const totalSimples = dasSimplesServ + dasSimplesCom;
 
-  // Alíquota de transição IBS/CBS conforme LC 214/2025
-  let aliqCbsIbs = 0.089;
-  let fatorReducaoDas = 0.45; // Percentual mantido no DAS (IRPJ, CSLL, CPP)
+  let aliqCbs = 0.088, aliqIbs = 0.001, fracaoExtincao = 0.0, anoTeste = false;
 
-  if (ano === 2026) {
-    aliqCbsIbs = 0.010; // Teste 1% (0.9% CBS + 0.1% IBS)
-    fatorReducaoDas = 0.95;
-  } else if (ano === 2027 || ano === 2028) {
-    aliqCbsIbs = 0.089; // CBS Plena 8.8% + IBS teste 0.1%
-    fatorReducaoDas = 0.65;
-  } else if (ano === 2029) {
-    aliqCbsIbs = 0.125; // Início transição ICMS/ISS
-    fatorReducaoDas = 0.55;
-  } else if (ano === 2033) {
-    aliqCbsIbs = 0.265; // Alíquota Plena definitiva estimada
-    fatorReducaoDas = 0.35;
+  if (ano === 2026) { aliqCbs = 0.009; aliqIbs = 0.001; anoTeste = true; }
+  else if (ano === 2027) { aliqCbs = 0.088; aliqIbs = 0.000; }
+  else if (ano === 2028) { aliqCbs = 0.088; aliqIbs = 0.001; }
+  else if (ano >= 2029 && ano <= 2032) {
+    const passos = ano - 2028;
+    fracaoExtincao = passos * 0.10;
+    aliqCbs = 0.088;
+    aliqIbs = 0.01 + (passos * 0.035);
+  } else if (ano >= 2033) {
+    aliqCbs = 0.088; aliqIbs = 0.177; fracaoExtincao = 1.0;
   }
 
-  // DAS Reduzido no Regime Híbrido
-  const dasReduzidoServ = safeServ * (aliqSimplesServ * fatorReducaoDas);
-  const dasReduzidoCom = safeCom * (aliqSimplesCom * fatorReducaoDas);
-  const dasReduzidoTotal = dasReduzidoServ + dasReduzidoCom;
+  const fatorReducaoSetorial = 1 - (reducaoSetorial / 100);
+  const aliqConjunta = (aliqCbs + aliqIbs) * fatorReducaoSetorial;
 
-  // CBS/IBS com crédito sobre compras comprovadas
-  const baseTributavel = Math.max(0, (safeServ + safeCom) - safeCompras);
-  const cbsApurada = baseTributavel * aliqCbsIbs;
-  const totalHibrido = dasReduzidoTotal + cbsApurada;
+  const percSubstituidoCom = faixaCom.pisPart + faixaCom.cofinsPart + (faixaCom.icmsPart * (ano >= 2029 ? fracaoExtincao : 0));
+  const percSubstituidoServ = faixaServ.pisPart + faixaServ.cofinsPart + (faixaServ.issPart * (ano >= 2029 ? fracaoExtincao : 0));
 
+  const dasMantidoCom = safeCom * (aliqSimplesCom * (1 - Math.min(0.65, percSubstituidoCom)));
+  const dasMantidoServ = safeServ * (aliqSimplesServ * (1 - Math.min(0.65, percSubstituidoServ)));
+  const dasReduzidoTotal = dasMantidoCom + dasMantidoServ;
+
+  const debito = (safeServ + safeCom) * aliqConjunta;
+  const credito = safeCompras * aliqConjunta;
+  const valorLiquido = Math.max(0, debito - credito);
+  const totalHibrido = dasReduzidoTotal + (anoTeste ? 0 : valorLiquido);
   const diferenca = totalHibrido - totalSimples;
-  const simplesVantajoso = diferenca >= 0;
 
   return {
-    totalSimples,
-    totalHibrido,
-    diferencaAbs: Math.abs(diferenca),
-    simplesVantajoso,
-    aliqSimplesServ: aliqSimplesServ * 100,
-    aliqSimplesCom: aliqSimplesCom * 100,
-    dasSimplesServ,
-    dasSimplesCom,
-    dasReduzidoServ,
-    dasReduzidoCom,
-    cbsApurada,
-    aliqCbsIbs: aliqCbsIbs * 100
+    totalSimples, totalHibrido, diferencaAbs: Math.abs(diferenca), simplesVantajoso: diferenca >= 0,
+    aliqSimplesServ: aliqSimplesServ * 100, aliqSimplesCom: aliqSimplesCom * 100,
+    dasSimplesServ, dasSimplesCom, dasReduzidoTotal, debitoBrutoIbsCbs: debito, creditoFornecedores: credito,
+    valorLiquidoIbsCbs: valorLiquido, aliqConjuntaIbsCbs: aliqConjunta * 100, anoTesteCompensavel: anoTeste
   };
 }
 
-/**
- * 2. ANÁLISE DE FATOR R (LC 123/2006, art. 18)
- */
-export function calculateFatorR({ rbt12 = 0, folha12 = 0, receitaMensal = 0 }) {
-  const safeRbt12 = Math.max(0, rbt12);
-  const safeFolha12 = Math.max(0, folha12);
-  const recMes = receitaMensal > 0 ? receitaMensal : (safeRbt12 / 12);
+export function calculateFatorRCompleto({ rbt12 = 0, folha12 = 0, receitaMes = 0, socioNoTetoInss = false }) {
+  const safeRbt = Math.max(0, rbt12);
+  const safeFolha = Math.max(0, folha12);
+  const rec = receitaMes > 0 ? receitaMes : (safeRbt / 12);
+  if (safeRbt === 0) return { fatorR: 0, anexo: 'Indefinido', enquadraAnexo3: false, economiaLiquidaReal: 0 };
 
-  if (safeRbt12 === 0) {
-    return {
-      fatorRPercent: 0,
-      anexo: 'Indefinido',
-      enquadraAnexo3: false,
-      faltaAno: 0,
-      faltaMes: 0,
-      aliqAnexo3: 6,
-      aliqAnexo5: 15.5,
-      impostoAnexo3: 0,
-      impostoAnexo5: 0,
-      economiaMensal: 0
-    };
-  }
+  const fatorR = (safeFolha / safeRbt) * 100;
+  const enquadraAnexo3 = fatorR >= 28.0;
 
-  const fatorRDecimal = safeFolha12 / safeRbt12;
-  const fatorRPercent = fatorRDecimal * 100;
-  const enquadraAnexo3 = fatorRDecimal >= 0.28;
+  const { aliqEfetiva: aliqAnexo3 } = calcularAliquotaSimples(safeRbt, TABELA_ANEXO_III);
+  const { aliqEfetiva: aliqAnexo5 } = calcularAliquotaSimples(safeRbt, TABELA_ANEXO_V);
 
-  const folhaMetaAnual = safeRbt12 * 0.28;
-  const faltaAno = Math.max(0, folhaMetaAnual - safeFolha12);
-  const faltaMes = faltaAno / 12;
+  const dasAnexo3 = rec * aliqAnexo3;
+  const dasAnexo5 = rec * aliqAnexo5;
+  const diferencaDasBruta = Math.max(0, dasAnexo5 - dasAnexo3);
 
-  const aliqAnexo3 = calcularAliquotaEfetivaSimples(safeRbt12, TABELA_ANEXO_III);
-  const aliqAnexo5 = calcularAliquotaEfetivaSimples(safeRbt12, TABELA_ANEXO_V);
+  const folhaAlvoAnual = safeRbt * 0.28;
+  const faltaAno = Math.max(0, folhaAlvoAnual - safeFolha);
+  const faltaMesProlabore = faltaAno / 12;
 
-  const impostoAnexo3 = recMes * aliqAnexo3;
-  const impostoAnexo5 = recMes * aliqAnexo5;
-  const economiaMensal = impostoAnexo5 - impostoAnexo3;
+  let inssSocioIncremental = (!socioNoTetoInss && faltaMesProlabore > 0) ? Math.min(faltaMesProlabore * 0.11, 897.32) : 0;
+  const irpfSocioIncremental = calcularIrrfProgressivo(Math.max(0, faltaMesProlabore - inssSocioIncremental));
+  const custoTotalCpfIncremental = inssSocioIncremental + irpfSocioIncremental;
 
   return {
-    fatorRPercent,
-    anexo: enquadraAnexo3 ? 'Anexo III (Alíquota Reduzida)' : 'Anexo V (Mais Oneroso)',
-    enquadraAnexo3,
-    faltaAno,
-    faltaMes,
-    aliqAnexo3: aliqAnexo3 * 100,
-    aliqAnexo5: aliqAnexo5 * 100,
-    impostoAnexo3,
-    impostoAnexo5,
-    economiaMensal
+    fatorR, enquadraAnexo3, anexo: enquadraAnexo3 ? 'Anexo III (Alíquota Reduzida)' : 'Anexo V (Mais Oneroso)',
+    aliqAnexo3: aliqAnexo3 * 100, aliqAnexo5: aliqAnexo5 * 100, dasAnexo3, dasAnexo5, diferencaDasBruta, faltaAno, faltaMesProlabore,
+    inssSocioIncremental, irpfSocioIncremental, custoTotalCpfIncremental, economiaLiquidaReal: diferencaDasBruta - custoTotalCpfIncremental
   };
 }
 
-/**
- * 3. SIMPLES NACIONAL VS LUCRO PRESUMIDO (Regras Oficiais RFB)
- */
-export function calculateSimplesPresumido({ faturamento = 0, folha = 0, atividade = 'servico' }) {
-  const fat = Math.max(0, faturamento);
-  const folhaVal = Math.max(0, folha);
+export function calculateSimplesPresumidoExato({ faturamentoAnual = 0, folhaAnual = 0, anexoSimples = 'III', aliqIssLocal = 5.0, aliqIcmsLocal = 4.0 }) {
+  const fat = Math.max(0, faturamentoAnual);
+  const folha = Math.max(0, folhaAnual);
 
-  // 1. Simples Nacional
-  const tabela = atividade === 'servico' ? TABELA_ANEXO_III : TABELA_ANEXO_I;
-  const aliqSimples = calcularAliquotaEfetivaSimples(fat, tabela);
-  const totalSimples = fat * aliqSimples;
+  let tabela = TABELA_ANEXO_III;
+  let inssPatronalPorFora = false;
+  if (anexoSimples === 'I') tabela = TABELA_ANEXO_I;
+  else if (anexoSimples === 'IV') { tabela = TABELA_ANEXO_IV; inssPatronalPorFora = true; }
+  else if (anexoSimples === 'V') tabela = TABELA_ANEXO_V;
 
-  // 2. Lucro Presumido
-  const percPresuncaoIr = atividade === 'servico' ? 0.32 : 0.08;
-  const percPresuncaoCsll = atividade === 'servico' ? 0.32 : 0.12;
+  const { aliqEfetiva: aliqSimples } = calcularAliquotaSimples(fat, tabela);
+  let totalSimples = fat * aliqSimples;
+  if (inssPatronalPorFora) totalSimples += (folha * 0.20);
 
-  const baseIrpj = fat * percPresuncaoIr;
-  const baseCsll = fat * percPresuncaoCsll;
+  const isServico = anexoSimples !== 'I';
+  const percIr = isServico ? 0.32 : 0.08;
+  const percCsll = isServico ? 0.32 : 0.12;
 
+  const baseIrpj = fat * percIr;
   const irpjBasico = baseIrpj * 0.15;
-  // Adicional IRPJ: 10% sobre lucro presumido que exceder R$ 240.000 ao ano (R$ 20.000/mês)
   const adicionalIrpj = Math.max(0, baseIrpj - 240000) * 0.10;
-  const totalIrpj = irpjBasico + adicionalIrpj;
+  const irpjTotal = irpjBasico + adicionalIrpj;
 
-  const totalCsll = baseCsll * 0.09;
-  const pis = fat * 0.0065;   // 0.65% cumulativo
-  const cofins = fat * 0.03;  // 3.00% cumulativo
-  const impostoLocal = atividade === 'servico' ? (fat * 0.035) : (fat * 0.045); // ISS médio 3.5% ou ICMS 4.5%
+  const csllTotal = fat * percCsll * 0.09;
+  const pis = fat * 0.0065;
+  const cofins = fat * 0.0300;
+  const tributoLocal = fat * ((isServico ? aliqIssLocal : aliqIcmsLocal) / 100);
+  const cppPatronalPresumido = folha * 0.283;
 
-  // CPP no Presumido: 20% patronal + 2.5% RAT + 5.8% Terceiros = 28.3% sobre folha
-  const encargosPatronais = folhaVal * 0.283;
-
-  const totalPresumido = totalIrpj + totalCsll + pis + cofins + impostoLocal + encargosPatronais;
-
-  const aliqEfetivaSimples = fat > 0 ? (totalSimples / fat) * 100 : 0;
-  const aliqEfetivaPresumido = fat > 0 ? (totalPresumido / fat) * 100 : 0;
-  const economiaSimples = totalPresumido - totalSimples;
+  const totalPresumido = irpjTotal + csllTotal + pis + cofins + tributoLocal + cppPatronalPresumido;
 
   return {
-    totalSimples,
-    totalPresumido,
-    aliqEfetivaSimples,
-    aliqEfetivaPresumido,
-    economiaSimples,
-    simplesMelhor: economiaSimples >= 0,
-    detalhesPresumido: {
-      irpj: totalIrpj,
-      csll: totalCsll,
-      pis,
-      cofins,
-      impostoLocal,
-      encargosPatronais
-    }
+    totalSimples, totalPresumido, aliqSimples: (totalSimples / (fat || 1)) * 100, aliqPresumido: (totalPresumido / (fat || 1)) * 100,
+    economiaAnual: Math.abs(totalPresumido - totalSimples), simplesVence: totalSimples <= totalPresumido,
+    detalhes: { irpjTotal, csllTotal, pis, cofins, tributoLocal, cppPatronalPresumido }
   };
 }
 
-/**
- * 4. SIMULADOR DE RESCISÃO CLT (CLT + Lei 12.506/2011 + Tabela Oficial INSS)
- */
-export function calculateRescisaoCLT({
-  salarioBase = 0,
-  motivo = 'sem_justa_causa',
-  mesesTrabalhados = 0,
-  anosCompletos = 0,
-  saldoFgts = 0
-}) {
+export function calculateRescisaoCLTCompleto({ salarioBase = 0, diasTrabalhadosMes = 30, motivo = 'sem_justa_causa', meses13 = 0, feriasVencidasPeriodos = 0, mesesFeriasProporcionais = 0, anosCompletosCasa = 0, saldoFgts = 0 }) {
   const sal = Math.max(0, salarioBase);
-  const m = Math.min(12, Math.max(0, parseInt(mesesTrabalhados, 10) || 0));
-  const anos = Math.max(0, parseInt(anosCompletos, 10) || 0);
-  const fgts = Math.max(0, saldoFgts);
+  const diasMes = Math.min(30, Math.max(0, diasTrabalhadosMes));
+  const anos = Math.max(0, anosCompletosCasa);
 
-  // Aviso Prévio Proporcional (Lei 12.506/2011: 30 dias + 3 por ano completo, max 90)
-  const diasAvisoPrevio = Math.min(90, 30 + (anos * 3));
-  const valorAvisoPrevio = (sal / 30) * diasAvisoPrevio;
+  const saldoSalario = (sal / 30) * diasMes;
+  const inssSaldoSalario = calcularInssProgressivo(saldoSalario);
+  const irrfSaldoSalario = calcularIrrfProgressivo(saldoSalario - inssSaldoSalario);
 
-  const decimoTerceiro = (sal / 12) * m;
-  const feriasProporcionais = (sal / 12) * m;
-  const tercoConstitucional = feriasProporcionais / 3;
-  const totalFerias = feriasProporcionais + tercoConstitucional;
+  const diasAviso = Math.min(90, 30 + (anos * 3));
+  const valorAvisoIntegral = (sal / 30) * diasAviso;
+  const avosProjecao = Math.floor(diasAviso / 30);
+  const meses13Total = Math.min(12, meses13 + (motivo === 'sem_justa_causa' ? avosProjecao : 0));
+  const mesesFeriasTotal = Math.min(12, mesesFeriasProporcionais + (motivo === 'sem_justa_causa' ? avosProjecao : 0));
 
-  let avisoPrevioAReceber = 0;
-  let multaFgts = 0;
-  let percentualMulta = 0;
-  let saqueFgtsPermitido = 0;
+  const decimoTerceiro = (sal / 12) * meses13Total;
+  const inss13 = calcularInssProgressivo(decimoTerceiro);
+  const irrf13 = calcularIrrfProgressivo(decimoTerceiro - inss13);
+
+  const feriasVencidas = feriasVencidasPeriodos * sal * (4 / 3);
+  const feriasProporcionais = ((sal / 12) * mesesFeriasTotal) * (4 / 3);
+  const totalFeriasGeral = feriasVencidas + feriasProporcionais;
+
+  let avisoPrevioAReceber = 0, multaFgts = 0, percentualMulta = 0, saqueFgtsPermitido = 0;
 
   if (motivo === 'sem_justa_causa') {
-    avisoPrevioAReceber = valorAvisoPrevio;
-    percentualMulta = 40;
-    multaFgts = fgts * 0.40;
-    saqueFgtsPermitido = fgts + multaFgts;
+    avisoPrevioAReceber = valorAvisoIntegral; percentualMulta = 40; multaFgts = saldoFgts * 0.40; saqueFgtsPermitido = saldoFgts + multaFgts;
   } else if (motivo === 'acordo') {
-    // Demissão por acordo mútuo (Art. 484-A CLT)
-    avisoPrevioAReceber = valorAvisoPrevio * 0.50; // Metade do aviso
-    percentualMulta = 20;
-    multaFgts = fgts * 0.20;
-    saqueFgtsPermitido = (fgts * 0.80) + multaFgts; // Saque de até 80% do saldo
-  } else if (motivo === 'pedido') {
-    // Pedido de demissão
-    avisoPrevioAReceber = 0;
-    percentualMulta = 0;
-    multaFgts = 0;
-    saqueFgtsPermitido = 0;
-  } else if (motivo === 'com_justa_causa') {
-    return {
-      decimoTerceiro: 0,
-      totalFerias: 0,
-      avisoPrevio: 0,
-      diasAvisoPrevio: 0,
-      multaFgts: 0,
-      percentualMulta: 0,
-      saqueFgtsPermitido: 0,
-      totalRescisaoBruto: 0,
-      descontoInssEstimado: 0,
-      totalLiquidoEstimado: 0
-    };
+    avisoPrevioAReceber = valorAvisoIntegral * 0.50; percentualMulta = 20; multaFgts = saldoFgts * 0.20; saqueFgtsPermitido = (saldoFgts * 0.80) + multaFgts;
+  } else if (motivo === 'justa_causa') {
+    return { saldoSalario, feriasVencidas, decimoTerceiro: 0, feriasProporcionais: 0, avisoPrevio: 0, diasAviso: 0, multaFgts: 0, totalLiquido: Math.max(0, saldoSalario + feriasVencidas - inssSaldoSalario - irrfSaldoSalario), saqueFgtsPermitido: 0 };
   }
 
-  const totalBruto = decimoTerceiro + totalFerias + avisoPrevioAReceber + multaFgts;
-
-  // Desconto estimativo de INSS sobre verbas salariais (13º)
-  const inssSobre13 = Math.min(decimoTerceiro * 0.09, 850);
-  const totalLiquido = totalBruto - inssSobre13;
-
-  return {
-    decimoTerceiro,
-    totalFerias,
-    avisoPrevio: avisoPrevioAReceber,
-    diasAvisoPrevio,
-    multaFgts,
-    percentualMulta,
-    saqueFgtsPermitido,
-    totalRescisaoBruto: totalBruto,
-    descontoInssEstimado: inssSobre13,
-    totalLiquidoEstimado: totalLiquido
-  };
+  const totalBruto = saldoSalario + avisoPrevioAReceber + decimoTerceiro + totalFeriasGeral + multaFgts;
+  const totalDescontos = inssSaldoSalario + irrfSaldoSalario + inss13 + irrf13;
+  return { saldoSalario, avisoPrevio: avisoPrevioAReceber, diasAviso, decimoTerceiro, feriasVencidas, feriasProporcionais, multaFgts, percentualMulta, saqueFgtsPermitido, totalBruto, totalDescontos, totalLiquido: totalBruto - totalDescontos };
 }
 
-/**
- * 5. PRÓ-LABORE X LUCROS (Tabela Oficial IRRF RFB + Teto INSS 2025/2026)
- */
 export function calculateProlabore({ valor = 0 }) {
   const pl = Math.max(0, valor);
-
-  // Teto INSS 2025/2026: R$ 8.157,41 -> 11% = R$ 897,32
-  const tetoInssRecolhimento = 897.32;
-  const inss = Math.min(pl * 0.11, tetoInssRecolhimento);
-
+  const inss = Math.min(pl * 0.11, 897.32);
   const baseIrrf = Math.max(0, pl - inss);
-
-  // Tabela Progressiva Oficial RFB
-  let irrf = 0;
-  let aliquotaNominalIrrf = 0;
-
-  if (baseIrrf <= 2259.20) {
-    irrf = 0;
-    aliquotaNominalIrrf = 0;
-  } else if (baseIrrf <= 2826.65) {
-    irrf = (baseIrrf * 0.075) - 169.44;
-    aliquotaNominalIrrf = 7.5;
-  } else if (baseIrrf <= 3751.05) {
-    irrf = (baseIrrf * 0.15) - 381.44;
-    aliquotaNominalIrrf = 15.0;
-  } else if (baseIrrf <= 4664.68) {
-    irrf = (baseIrrf * 0.225) - 662.77;
-    aliquotaNominalIrrf = 22.5;
-  } else {
-    irrf = (baseIrrf * 0.275) - 896.00;
-    aliquotaNominalIrrf = 27.5;
-  }
-
+  let irrf = 0, aliq = 0;
+  if (baseIrrf <= 2259.20) { irrf = 0; aliq = 0; }
+  else if (baseIrrf <= 2826.65) { irrf = (baseIrrf * 0.075) - 169.44; aliq = 7.5; }
+  else if (baseIrrf <= 3751.05) { irrf = (baseIrrf * 0.15) - 381.44; aliq = 15.0; }
+  else if (baseIrrf <= 4664.68) { irrf = (baseIrrf * 0.225) - 662.77; aliq = 22.5; }
+  else { irrf = (baseIrrf * 0.275) - 896.00; aliq = 27.5; }
   irrf = Math.max(0, irrf);
-  const liquido = Math.max(0, pl - inss - irrf);
-  const totalRetencoes = inss + irrf;
-  const aliquotaEfetiva = pl > 0 ? (totalRetencoes / pl) * 100 : 0;
-
-  return {
-    prolaboreBruto: pl,
-    inss,
-    irrf,
-    aliquotaNominalIrrf,
-    prolaboreLiquido: liquido,
-    totalRetencoes,
-    aliquotaEfetiva
-  };
+  return { prolaboreBruto: pl, inss, irrf, aliquotaNominalIrrf: aliq, prolaboreLiquido: pl - inss - irrf, totalRetencoes: inss + irrf, aliquotaEfetiva: pl > 0 ? ((inss + irrf) / pl) * 100 : 0 };
 }
 
-/**
- * 6. COMPARADOR CLT VS PJ (Custo Corporativo Real vs Líquido do Profissional)
- */
 export function calculateCltVsPj({ salarioClt = 0, valorPj = 0, regimeEmpresa = 'simples' }) {
   const sal = Math.max(0, salarioClt);
   const notaPj = Math.max(0, valorPj);
-
-  // 1. Custo para a Empresa no Modelo CLT
-  const fgts = sal * 0.08;
-  const provisao13 = sal * 0.0833;
-  const provisaoFerias = sal * 0.1111; // Férias + 1/3
-  const encargosPatronais = regimeEmpresa === 'presumido' ? (sal * 0.283) : 0;
-  const beneficiosMedios = 600; // VR/VT/Plano médio
-  const custoEmpresaClt = sal + fgts + provisao13 + provisaoFerias + encargosPatronais + beneficiosMedios;
-
-  // 2. Líquido do Empregado CLT
+  const custoEmpresaClt = sal + (sal * 0.08) + (sal * 0.0833) + (sal * 0.1111) + (regimeEmpresa === 'presumido' ? (sal * 0.283) : 0) + 600;
   const inssClt = Math.min(sal * 0.11, 897.32);
-  const baseIrClt = Math.max(0, sal - inssClt);
   let irrfClt = 0;
-  if (baseIrClt > 4664.68) irrfClt = (baseIrClt * 0.275) - 896;
-  else if (baseIrClt > 3751.05) irrfClt = (baseIrClt * 0.225) - 662.77;
-  else if (baseIrClt > 2826.65) irrfClt = (baseIrClt * 0.15) - 381.44;
-  else if (baseIrClt > 2259.20) irrfClt = (baseIrClt * 0.075) - 169.44;
-  irrfClt = Math.max(0, irrfClt);
-  const liquidoClt = sal - inssClt - irrfClt + (beneficiosMedios * 0.8);
-
-  // 3. Modelo PJ
-  const impostoPj = notaPj * 0.06; // Simples Nacional Anexo III (6%)
-  const contabilidadePj = 300;
-  const prolaborePj = 1412; // 1 Salário Mínimo
-  const inssPj = prolaborePj * 0.11;
-  const liquidoPj = Math.max(0, notaPj - impostoPj - contabilidadePj - inssPj);
-
-  // Ponto de equilíbrio estimado (PJ equivalente ao CLT)
-  const pjEquivalente = custoEmpresaClt * 0.90;
-
-  return {
-    custoEmpresaClt,
-    liquidoClt,
-    custoEmpresaPj: notaPj,
-    liquidoPj,
-    diferencaLiquido: liquidoPj - liquidoClt,
-    pjEquivalente,
-    detalhesClt: {
-      salario: sal,
-      fgts,
-      provisoes: provisao13 + provisaoFerias,
-      encargosPatronais,
-      inssClt,
-      irrfClt
-    }
-  };
+  const bIr = Math.max(0, sal - inssClt);
+  if (bIr > 4664.68) irrfClt = (bIr * 0.275) - 896;
+  else if (bIr > 3751.05) irrfClt = (bIr * 0.225) - 662.77;
+  else if (bIr > 2826.65) irrfClt = (bIr * 0.15) - 381.44;
+  else if (bIr > 2259.20) irrfClt = (bIr * 0.075) - 169.44;
+  const liquidoClt = sal - inssClt - Math.max(0, irrfClt) + 480;
+  const impostoPj = notaPj * 0.06;
+  const liquidoPj = Math.max(0, notaPj - impostoPj - 300 - (1412 * 0.11));
+  return { custoEmpresaClt, liquidoClt, custoEmpresaPj: notaPj, liquidoPj, pjEquivalente: custoEmpresaClt * 0.90 };
 }

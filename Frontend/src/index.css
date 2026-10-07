@@ -2,59 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', sans-serif;
-  overflow-x: hidden;
-  background-color: #f8fafc;
-  color: #0f172a;
-}
+body { font-family: 'Inter', sans-serif; overflow-x: hidden; background-color: #f8fafc; color: #0f172a; }
+.glass-panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(226, 232, 240, 0.9); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.02); }
+.glass-card { background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.95); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.glass-card:hover { border-color: rgba(16, 185, 129, 0.5); transform: translateY(-2px); box-shadow: 0 14px 28px -6px rgba(16, 185, 129, 0.12); }
+.glass-input { background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; transition: all 0.2s ease; }
+.glass-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); outline: none; }
 
-.glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-card:hover {
-  border-color: rgba(16, 185, 129, 0.5);
-  transform: translateY(-3px);
-  box-shadow: 0 14px 28px -6px rgba(16, 185, 129, 0.12);
-}
-
-.glass-input {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #0f172a;
-  transition: all 0.2s ease;
-}
-
-.glass-input:focus {
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-  outline: none;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.8);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(203, 213, 225, 0.8);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.6);
+@media print {
+  header, footer, nav, button, .no-print, #bg-canvas, .menu-drawer { display: none !important; }
+  body, html { background: #ffffff !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; }
+  .glass-panel, .glass-card { background: transparent !important; border: 1px solid #cccccc !important; box-shadow: none !important; backdrop-filter: none !important; }
+  main { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
 }
