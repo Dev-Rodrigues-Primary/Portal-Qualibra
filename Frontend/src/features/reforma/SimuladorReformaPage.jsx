@@ -2,45 +2,175 @@ import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateReformaIntegral } from '../../domain/taxCalculators';
 import { formatCurrency, formatPercent, parseNumberInput } from '../../utils/formatters';
-import { Printer } from 'lucide-react';
+import { Calculator, Sliders, CheckCircle, AlertTriangle, Printer, Layers, Info, TrendingDown, ArrowRight } from 'lucide-react';
+
 export function SimuladorReformaPage() {
-  const [rbt12, setRbt12] = useState(1200000); const [recServ, setRecServ] = useState(80000); const [recCom, setRecCom] = useState(20000); const [compras, setCompras] = useState(15000); const [ano, setAno] = useState(2027); const [reducao, setReducao] = useState(0);
-  const result = useMemo(() => calculateReformaIntegral({ rbt12: parseNumberInput(rbt12), recServ: parseNumberInput(recServ), recCom: parseNumberInput(recCom), compras: parseNumberInput(compras), ano: parseInt(ano, 10), reducaoSetorial: parseFloat(reducao)||0 }), [rbt12, recServ, recCom, compras, ano, reducao]);
+  const [rbt12, setRbt12] = useState(1200000);
+  const [recServ, setRecServ] = useState(80000);
+  const [recCom, setRecCom] = useState(20000);
+  const [compras, setCompras] = useState(15000);
+  const [ano, setAno] = useState(2027);
+  const [publicoAlvo, setPublicoAlvo] = useState('B2B');
+  const [reducaoSetorial, setReducaoSetorial] = useState(0);
+
+  const result = useMemo(() => calculateReformaIntegral({
+    rbt12: parseNumberInput(rbt12), recServ: parseNumberInput(recServ), recCom: parseNumberInput(recCom),
+    compras: parseNumberInput(compras), ano: parseInt(ano, 10), publicoAlvo, reducaoSetorial: parseFloat(reducaoSetorial) || 0
+  }), [rbt12, recServ, recCom, compras, ano, publicoAlvo, reducaoSetorial]);
+
   return (
-    <div className="space-y-6">
-      <div className="no-print"><Breadcrumbs items={[{ label: 'Reforma Tributária LC 214/2025' }]} /></div>
-      <div className="glass-panel p-6 rounded-2xl flex justify-between items-center border border-slate-200">
-        <div><h2 className="text-2xl font-extrabold text-slate-900">Simulador da Reforma Tributária</h2><p className="text-xs text-slate-500">Comparativo Simples vs Híbrido</p></div>
-        <button onClick={() => window.print()} className="no-print border px-4 py-2 rounded-xl text-xs flex gap-2"><Printer className="w-4 h-4"/> Imprimir</button>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-4 no-print">
-          <label className="block text-xs font-medium">RBT12<input type="number" value={rbt12} onChange={e=>setRbt12(e.target.value)} className="w-full p-2 border rounded mt-1"/></label>
-          <div className="flex gap-2">
-            <label className="w-full text-xs font-medium">Rec. Serviços<input type="number" value={recServ} onChange={e=>setRecServ(e.target.value)} className="w-full p-2 border rounded mt-1"/></label>
-            <label className="w-full text-xs font-medium">Rec. Comércio<input type="number" value={recCom} onChange={e=>setRecCom(e.target.value)} className="w-full p-2 border rounded mt-1"/></label>
-          </div>
-          <div className="flex gap-2">
-            <label className="w-full text-xs font-medium">Compras (Crédito)<input type="number" value={compras} onChange={e=>setCompras(e.target.value)} className="w-full p-2 border rounded mt-1"/></label>
-            <label className="w-full text-xs font-medium">Ano<select value={ano} onChange={e=>setAno(e.target.value)} className="w-full p-2 border rounded mt-1"><option value="2026">2026 (Teste)</option><option value="2027">2027 (CBS)</option><option value="2029">2029 (Transição)</option><option value="2033">2033 (Plena)</option></select></label>
-          </div>
-          <label className="block text-xs font-medium">Redução Setorial (Saúde/Educação)<select value={reducao} onChange={e=>setReducao(e.target.value)} className="w-full p-2 border rounded mt-1"><option value="0">Padrão</option><option value="30">30% (Profissões)</option><option value="60">60% (Saúde/Ed)</option></select></label>
+    <div className="space-y-6 animate-fade-in-up pb-12">
+      <div className="no-print"><Breadcrumbs items={[{ label: 'Simulador da Reforma Tributária' }]} /></div>
+
+      <div className="glass-panel p-6 lg:p-8 rounded-2xl border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <span className="text-[10px] font-mono font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-3 py-1 rounded-full uppercase flex items-center gap-1.5 w-fit">
+            <Layers className="w-3.5 h-3.5" /> Lei Complementar nº 214/2025
+          </span>
+          <h2 className="text-2xl lg:text-3xl font-extrabold text-slate-900 mt-3 tracking-tight">Simulador de Transição IBS/CBS</h2>
+          <p className="text-sm text-slate-500 mt-1 max-w-2xl">
+            Projete o impacto financeiro da migração do Simples Nacional tradicional para o Regime Híbrido, considerando o direito a crédito das compras e a redução progressiva de ICMS/ISS.
+          </p>
         </div>
-        <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-4">
-          <div className="p-4 border rounded-xl bg-slate-50 text-sm font-bold text-center">
-            {result.simplesVantajoso ? `SIMPLES VENCE: Economia de ${formatCurrency(result.diferencaAbs)}` : `HÍBRIDO VENCE: Economia de ${formatCurrency(result.diferencaAbs)}`}
+        <button onClick={() => window.print()} className="no-print bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition shadow-sm">
+          <Printer className="w-4 h-4 text-slate-500" />
+          <span>Imprimir Relatório</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        {/* LADO ESQUERDO: PARÂMETROS */}
+        <div className="no-print xl:col-span-4 space-y-6">
+          <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-5">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <Sliders className="w-5 h-5 text-brand-600" />
+              <h3 className="font-bold text-slate-900">Parâmetros da Empresa</h3>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Faturamento 12 Meses (RBT12)</label>
+                  <input type="number" value={rbt12} onChange={(e) => setRbt12(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
+                  <p className="text-[10px] text-slate-400 mt-1">Define a alíquota base na tabela da LC 123/06.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Receita Serviços</label>
+                    <input type="number" value={recServ} onChange={(e) => setRecServ(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Receita Comércio</label>
+                    <input type="number" value={recCom} onChange={(e) => setRecCom(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Ano de Transição</label>
+                    <select value={ano} onChange={(e) => setAno(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-semibold text-brand-700">
+                      <option value="2026">2026 (Teste 1%)</option>
+                      <option value="2027">2027 (CBS 8,8%)</option>
+                      <option value="2028">2028 (CBS 8,8%+IBS)</option>
+                      <option value="2029">2029 (Início ICMS/ISS)</option>
+                      <option value="2033">2033 (Plena 26,5%)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Compras Creditáveis</label>
+                    <input type="number" value={compras} onChange={(e) => setCompras(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Redução Setorial (Lei Específica)</label>
+                  <select value={reducaoSetorial} onChange={(e) => setReducaoSetorial(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm">
+                    <option value="0">Tributação Padrão (Sem redução)</option>
+                    <option value="30">Redução de 30% (Prof. Regulamentadas)</option>
+                    <option value="60">Redução de 60% (Saúde, Educação, etc.)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 border rounded-xl"><span className="text-xs text-slate-500">Simples Tradicional</span><div className="text-xl font-bold">{formatCurrency(result.totalSimples)}</div></div>
-            <div className="p-4 border rounded-xl bg-brand-50"><span className="text-xs text-brand-700">Regime Híbrido</span><div className="text-xl font-bold text-brand-700">{formatCurrency(result.totalHibrido)}</div></div>
+        </div>
+
+        {/* LADO DIREITO: RESULTADOS ANALÍTICOS */}
+        <div className="xl:col-span-8 space-y-6">
+          <div className="glass-panel p-6 lg:p-8 rounded-2xl border border-slate-200">
+            <h3 className="text-lg font-bold text-slate-900 mb-6">Apuração Comparativa Mensal</h3>
+
+            {/* Banner de Veredito */}
+            <div className={`p-5 rounded-2xl flex items-center justify-between border ${result.simplesVantajoso ? 'bg-emerald-50 border-emerald-200' : 'bg-blue-50 border-blue-200'}`}>
+              <div className="flex items-start gap-4">
+                {result.simplesVantajoso ? <CheckCircle className={`w-8 h-8 text-emerald-600`} /> : <TrendingDown className={`w-8 h-8 text-blue-600`} />}
+                <div>
+                  <div className={`text-sm font-bold uppercase tracking-wider ${result.simplesVantajoso ? 'text-emerald-800' : 'text-blue-800'}`}>
+                    {result.simplesVantajoso ? 'Manter Simples Tradicional' : 'Migrar para Regime Híbrido'}
+                  </div>
+                  <div className={`text-sm mt-1 ${result.simplesVantajoso ? 'text-emerald-700' : 'text-blue-700'}`}>
+                    A opção sugerida gera uma economia mensal de <b>{formatCurrency(result.diferencaAbs)}</b>.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cards de Valores */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="p-5 rounded-xl border border-slate-200 bg-slate-50 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-slate-400"></div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Simples Tradicional</span>
+                <div className="text-3xl font-black text-slate-800 mt-2 font-mono">{formatCurrency(result.totalSimples)}</div>
+                <div className="mt-2 text-[11px] text-slate-500">Guia única unificada baseada no RBT12.</div>
+              </div>
+              <div className="p-5 rounded-xl border border-brand-200 bg-brand-50 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+                <span className="text-xs font-bold text-brand-700 uppercase tracking-wider">Regime Híbrido (IBS/CBS)</span>
+                <div className="text-3xl font-black text-brand-700 mt-2 font-mono">{formatCurrency(result.totalHibrido)}</div>
+                <div className="mt-2 text-[11px] text-brand-600/80">Guia DAS Reduzida + Apuração Não-Cumulativa.</div>
+              </div>
+            </div>
+
+            {/* Memória de Cálculo Detalhada */}
+            <div className="mt-8">
+              <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <Info className="w-4 h-4 text-slate-400" /> Detalhamento do Regime Híbrido
+              </h4>
+              <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                    <tr>
+                      <th className="py-3 px-4">Componente</th>
+                      <th className="py-3 px-4">Alíquota Efetiva</th>
+                      <th className="py-3 px-4 text-right">Valor a Pagar</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    <tr>
+                      <td className="py-3 px-4">DAS Mantido (Serviços)</td>
+                      <td className="py-3 px-4 font-mono text-xs">{formatPercent(result.aliqSimplesServ)} (Reduzida)</td>
+                      <td className="py-3 px-4 text-right font-mono font-medium">{formatCurrency(result.dasReduzidoServ)}</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4">DAS Mantido (Comércio)</td>
+                      <td className="py-3 px-4 font-mono text-xs">{formatPercent(result.aliqSimplesCom)} (Reduzida)</td>
+                      <td className="py-3 px-4 text-right font-mono font-medium">{formatCurrency(result.dasReduzidoCom)}</td>
+                    </tr>
+                    <tr className="bg-slate-50">
+                      <td className="py-3 px-4 font-bold text-slate-900">CBS/IBS Apurado</td>
+                      <td className="py-3 px-4 font-mono text-xs text-brand-600 font-bold">{formatPercent(result.aliqConjuntaIbsCbs)} (Ano {ano})</td>
+                      <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">{formatCurrency(result.cbsApurada)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-3 p-3 bg-slate-50 border border-slate-100 rounded-lg text-xs text-slate-500 flex items-start gap-2">
+                <ArrowRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <p>No modelo Híbrido, a empresa abate os créditos de compras ({formatCurrency(parseNumberInput(compras))}) gerando um débito líquido de CBS/IBS. O DAS continua sendo pago, porém sem as parcelas substituídas.</p>
+              </div>
+            </div>
           </div>
-          <table className="w-full text-left text-xs mt-4">
-            <thead className="border-b"><tr><th>Tributo</th><th>Base</th><th>Líquido</th></tr></thead>
-            <tbody>
-              <tr><td className="py-2">DAS Mantido</td><td>-</td><td>{formatCurrency(result.dasReduzidoTotal)}</td></tr>
-              <tr><td className="py-2">CBS/IBS {formatPercent(result.aliqConjuntaIbsCbs)}</td><td>{formatCurrency(result.debitoBrutoIbsCbs)}</td><td>{formatCurrency(result.valorLiquidoIbsCbs)}</td></tr>
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
