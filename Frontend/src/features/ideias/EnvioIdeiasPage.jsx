@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
-import { Lightbulb, Send, CheckCircle2, AlertCircle, Loader2, Sparkles, X, Mail } from 'lucide-react';
+import { Lightbulb, Send, CheckCircle2, AlertCircle, Loader2, Sparkles, X, Mail, ShieldCheck } from 'lucide-react';
 
 export function EnvioIdeiasPage() {
-  // E-mail de destino padrão (você pode editar aqui ou na tela)
-  const [emailDestino, setEmailDestino] = useState('qualibra.dev@gmail.com');
-  const [editandoDestino, setEditandoDestino] = useState(false);
+  // E-mail de destino FIXO E OBRIGATÓRIO
+  const EMAIL_DESTINO = 'suporte.TI@qualibra.com.br';
 
   // Campos do formulário
   const [nome, setNome] = useState('');
@@ -23,7 +22,7 @@ export function EnvioIdeiasPage() {
     e.preventDefault();
     setErroEnvio('');
 
-    if (!nome || !emailRemetente || !titulo || !descricao) {
+    if (!nome.trim() || !emailRemetente.trim() || !titulo.trim() || !descricao.trim()) {
       setErroEnvio('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
@@ -31,43 +30,46 @@ export function EnvioIdeiasPage() {
     setEnviando(true);
 
     try {
-      // Envio real via API do FormSubmit (AJAX sem redirecionamento)
-      const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(emailDestino)}`, {
+      // Envio direto para suporte.TI@qualibra.com.br via FormSubmit AJAX
+      const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(EMAIL_DESTINO)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          _subject: `💡 Nova Ideia para o Portal Qualibra: ${titulo}`,
+          _subject: `💡 [Portal Qualibra] Nova Sugestão / Ideia: ${titulo}`,
           _template: 'table',
-          Nome: nome,
-          Setor: setor,
-          Email_Contato: emailRemetente,
+          _captcha: 'false',
+          _replyto: emailRemetente,
+          Destinatario_Oficial: EMAIL_DESTINO,
+          Nome_Colaborador: nome,
+          Setor_Departamento: setor,
+          Email_Retorno: emailRemetente,
           Titulo_Ideia: titulo,
-          Descricao: descricao,
-          Enviado_Em: new Date().toLocaleString('pt-BR')
+          Detalhamento_Ideia: descricao,
+          Data_Envio: new Date().toLocaleString('pt-BR')
         })
       });
 
       const data = await response.json();
 
       if (response.ok || data.success === 'true' || data.success === true) {
-        // Dispara a notificacao no canto superior esquerdo
+        // Dispara notificação no canto superior esquerdo
         setToastSucesso(true);
-        // Limpa o formulario
+        // Limpa os campos
         setNome('');
         setTitulo('');
         setDescricao('');
         setEmailRemetente('');
 
-        // Fecha a notificacao automaticamente apos 6 segundos
+        // Fecha a notificação automaticamente após 6 segundos
         setTimeout(() => setToastSucesso(false), 6000);
       } else {
         throw new Error(data.message || 'Erro ao enviar o e-mail.');
       }
     } catch (err) {
-      setErroEnvio('Não foi possível enviar o e-mail no momento. Verifique sua conexão.');
+      setErroEnvio('Não foi possível enviar o e-mail. Verifique a conexão com a internet.');
     } finally {
       setEnviando(false);
     }
@@ -87,8 +89,8 @@ export function EnvioIdeiasPage() {
               <span className="font-bold text-slate-900 text-sm">Ideia Enviada com Sucesso!</span>
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             </div>
-            <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-              Sua sugestão foi enviada diretamente para a caixa de entrada da Qualibra. Obrigado pela colaboração!
+            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+              Sua sugestão foi enviada diretamente para <b>{EMAIL_DESTINO}</b>.
             </p>
           </div>
           <button
@@ -110,39 +112,20 @@ export function EnvioIdeiasPage() {
           </span>
           <h2 className="text-2xl font-extrabold text-slate-900 mt-2">Envie sua Ideia para o Portal</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Tem sugestão de uma nova calculadora, rotina ou melhoria? Envie agora para a equipe de desenvolvimento!
+            Sugira novas calculadoras, rotinas fiscais ou melhorias operacionais diretamente para a TI.
           </p>
         </div>
 
-        {/* Destinatário */}
-        <div className="p-3 bg-white border border-slate-200 rounded-xl shadow-sm text-xs">
-          <div className="text-slate-400 font-mono text-[10px] uppercase">E-mail de Destino:</div>
-          {editandoDestino ? (
-            <div className="flex gap-1 mt-1">
-              <input
-                type="email"
-                value={emailDestino}
-                onChange={(e) => setEmailDestino(e.target.value)}
-                className="px-2 py-1 text-xs border border-brand-300 rounded font-mono"
-              />
-              <button
-                onClick={() => setEditandoDestino(false)}
-                className="px-2 py-1 bg-brand-600 text-white rounded text-[11px]"
-              >
-                Salvar
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between gap-2 mt-0.5">
-              <span className="font-mono font-semibold text-slate-800">{emailDestino}</span>
-              <button
-                onClick={() => setEditandoDestino(true)}
-                className="text-[10px] text-brand-600 hover:underline"
-              >
-                (Alterar)
-              </button>
-            </div>
-          )}
+        {/* Destinatário Fixo */}
+        <div className="p-3 bg-white border border-slate-200 rounded-xl shadow-sm text-xs min-w-[260px]">
+          <div className="text-slate-400 font-mono text-[10px] uppercase flex items-center gap-1">
+            <Mail className="w-3 h-3 text-brand-600" />
+            <span>Destino Oficial:</span>
+          </div>
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className="font-mono font-bold text-slate-900 text-xs">{EMAIL_DESTINO}</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" title="Canal Verificado da Qualibra" />
+          </div>
         </div>
       </div>
 
@@ -172,7 +155,7 @@ export function EnvioIdeiasPage() {
                 required
                 value={emailRemetente}
                 onChange={(e) => setEmailRemetente(e.target.value)}
-                placeholder="seu.email@empresa.com"
+                placeholder="seu.email@qualibra.com.br"
                 className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm font-mono"
               />
             </div>
@@ -235,24 +218,24 @@ export function EnvioIdeiasPage() {
           <button
             type="submit"
             disabled={enviando}
-            className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition shadow-md shadow-brand-600/20 text-sm flex items-center justify-center gap-2"
+            className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition shadow-md shadow-brand-600/20 text-sm flex items-center justify-center gap-2 cursor-pointer"
           >
             {enviando ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Enviando Ideia por E-mail...</span>
+                <span>Transmitindo para suporte.TI@qualibra.com.br...</span>
               </>
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                <span>Enviar Sugestão por E-mail</span>
+                <span>Enviar Sugestão para TI</span>
               </>
             )}
           </button>
         </form>
 
         <div className="pt-2 text-center text-[11px] text-slate-400 font-mono">
-          * As sugestões são enviadas diretamente para a caixa postal e analisadas pela equipe de tecnologia.
+          * Mensagem enviada diretamente para a caixa postal <b>suporte.TI@qualibra.com.br</b>.
         </div>
       </div>
     </div>
