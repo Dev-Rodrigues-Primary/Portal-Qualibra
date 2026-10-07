@@ -127,30 +127,58 @@ export function calculateFatorRCompleto({ rbt12 = 0, folha12 = 0, receitaMes = 0
   const safeRbt = Math.max(0, rbt12);
   const safeFolha = Math.max(0, folha12);
   const rec = receitaMes > 0 ? receitaMes : (safeRbt / 12);
+  
   if (safeRbt === 0) return { fatorR: 0, anexo: 'Indefinido', enquadraAnexo3: false, economiaLiquidaReal: 0 };
 
+  // Fator R Histórico Oficial
   const fatorR = (safeFolha / safeRbt) * 100;
   const enquadraAnexo3 = fatorR >= 28.0;
 
   const { aliqEfetiva: aliqAnexo3 } = calcularAliquotaSimples(safeRbt, TABELA_ANEXO_III);
   const { aliqEfetiva: aliqAnexo5 } = calcularAliquotaSimples(safeRbt, TABELA_ANEXO_V);
 
+  // Economia Bruta da Empresa no DAS
   const dasAnexo3 = rec * aliqAnexo3;
   const dasAnexo5 = rec * aliqAnexo5;
   const diferencaDasBruta = Math.max(0, dasAnexo5 - dasAnexo3);
 
-  const folhaAlvoAnual = safeRbt * 0.28;
-  const faltaAno = Math.max(0, folhaAlvoAnual - safeFolha);
-  const faltaMesProlabore = faltaAno / 12;
+  // === CÁLCULO MARGINAL DO SÓCIO (O Segredo da Contabilidade) ===
+  const proLaboreMedioAtual = safeFolha / 12;
+  const proLaboreIdeal = rec * 0.28; // Para a receita do mês, a folha deve ser 28%
+  
+  const faltaMesProlabore = Math.max(0, proLaboreIdeal - proLaboreMedioAtual);
 
-  let inssSocioIncremental = (!socioNoTetoInss && faltaMesProlabore > 0) ? Math.min(faltaMesProlabore * 0.11, 897.32) : 0;
-  const irpfSocioIncremental = calcularIrrfProgressivo(Math.max(0, faltaMesProlabore - inssSocioIncremental));
+  // Cenário Atual (Como o sócio paga hoje)
+  const inssAtual = socioNoTetoInss ? 0 : Math.min(proLaboreMedioAtual * 0.11, 897.32);
+  const irpfAtual = calcularIrrfProgressivo(Math.max(0, proLaboreMedioAtual - inssAtual));
+
+  // Cenário Ideal (Como o sócio passaria a pagar se subisse o pró-labore)
+  const inssIdeal = socioNoTetoInss ? 0 : Math.min(proLaboreIdeal * 0.11, 897.32);
+  const irpfIdeal = calcularIrrfProgressivo(Math.max(0, proLaboreIdeal - inssIdeal));
+
+  // O verdadeiro custo out-of-pocket (Tributação Marginal)
+  const inssSocioIncremental = inssIdeal - inssAtual;
+  const irpfSocioIncremental = irpfIdeal - irpfAtual;
   const custoTotalCpfIncremental = inssSocioIncremental + irpfSocioIncremental;
 
+  const economiaLiquidaReal = diferencaDasBruta - custoTotalCpfIncremental;
+
   return {
-    fatorR, enquadraAnexo3, anexo: enquadraAnexo3 ? 'Anexo III (Alíquota Reduzida)' : 'Anexo V (Mais Oneroso)',
-    aliqAnexo3: aliqAnexo3 * 100, aliqAnexo5: aliqAnexo5 * 100, dasAnexo3, dasAnexo5, diferencaDasBruta, faltaAno, faltaMesProlabore,
-    inssSocioIncremental, irpfSocioIncremental, custoTotalCpfIncremental, economiaLiquidaReal: diferencaDasBruta - custoTotalCpfIncremental
+    fatorR, 
+    enquadraAnexo3, 
+    anexo: enquadraAnexo3 ? 'Anexo III (Alíquota Reduzida)' : 'Anexo V (Mais Oneroso)',
+    aliqAnexo3: aliqAnexo3 * 100, 
+    aliqAnexo5: aliqAnexo5 * 100, 
+    dasAnexo3, 
+    dasAnexo5, 
+    diferencaDasBruta, 
+    proLaboreMedioAtual,
+    proLaboreIdeal,
+    faltaMesProlabore,
+    inssSocioIncremental, 
+    irpfSocioIncremental, 
+    custoTotalCpfIncremental, 
+    economiaLiquidaReal
   };
 }
 
