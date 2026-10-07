@@ -114,7 +114,11 @@ export function calculateReformaIntegral({ rbt12 = 0, recServ = 0, recCom = 0, c
   return {
     totalSimples, totalHibrido, diferencaAbs: Math.abs(diferenca), simplesVantajoso: diferenca >= 0,
     aliqSimplesServ: aliqSimplesServ * 100, aliqSimplesCom: aliqSimplesCom * 100,
-    dasSimplesServ, dasSimplesCom, dasReduzidoTotal, debitoBrutoIbsCbs: debito, creditoFornecedores: credito,
+    dasSimplesServ, dasSimplesCom, 
+    dasReduzidoServ: dasMantidoServ, // <-- AQUI FOI ONDE ESTAVA O FURO! (Faltava declarar no return)
+    dasReduzidoCom: dasMantidoCom,   // <-- AQUI FOI ONDE ESTAVA O FURO!
+    cbsApurada: valorLiquido,        // <-- AQUI FOI ONDE ESTAVA O FURO!
+    dasReduzidoTotal, debitoBrutoIbsCbs: debito, creditoFornecedores: credito,
     valorLiquidoIbsCbs: valorLiquido, aliqConjuntaIbsCbs: aliqConjunta * 100, anoTesteCompensavel: anoTeste
   };
 }

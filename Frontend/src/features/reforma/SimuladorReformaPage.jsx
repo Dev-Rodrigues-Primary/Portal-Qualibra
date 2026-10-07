@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateReformaIntegral } from '../../domain/taxCalculators';
 import { formatCurrency, formatPercent, parseNumberInput } from '../../utils/formatters';
-import { Calculator, Sliders, CheckCircle, AlertTriangle, Printer, Layers, Info, TrendingDown, ArrowRight } from 'lucide-react';
+import { Calculator, Sliders, CheckCircle, TrendingDown, Printer, Layers, Info, ArrowRight } from 'lucide-react';
 
 export function SimuladorReformaPage() {
   const [rbt12, setRbt12] = useState(1200000);
@@ -39,20 +39,17 @@ export function SimuladorReformaPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        {/* LADO ESQUERDO: PARÂMETROS */}
         <div className="no-print xl:col-span-4 space-y-6">
           <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-5">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Sliders className="w-5 h-5 text-brand-600" />
               <h3 className="font-bold text-slate-900">Parâmetros da Empresa</h3>
             </div>
-
             <div className="space-y-4">
               <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Faturamento 12 Meses (RBT12)</label>
                   <input type="number" value={rbt12} onChange={(e) => setRbt12(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
-                  <p className="text-[10px] text-slate-400 mt-1">Define a alíquota base na tabela da LC 123/06.</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -96,15 +93,13 @@ export function SimuladorReformaPage() {
           </div>
         </div>
 
-        {/* LADO DIREITO: RESULTADOS ANALÍTICOS */}
         <div className="xl:col-span-8 space-y-6">
           <div className="glass-panel p-6 lg:p-8 rounded-2xl border border-slate-200">
             <h3 className="text-lg font-bold text-slate-900 mb-6">Apuração Comparativa Mensal</h3>
 
-            {/* Banner de Veredito */}
             <div className={`p-5 rounded-2xl flex items-center justify-between border ${result.simplesVantajoso ? 'bg-emerald-50 border-emerald-200' : 'bg-blue-50 border-blue-200'}`}>
               <div className="flex items-start gap-4">
-                {result.simplesVantajoso ? <CheckCircle className={`w-8 h-8 text-emerald-600`} /> : <TrendingDown className={`w-8 h-8 text-blue-600`} />}
+                {result.simplesVantajoso ? <CheckCircle className="w-8 h-8 text-emerald-600" /> : <TrendingDown className="w-8 h-8 text-blue-600" />}
                 <div>
                   <div className={`text-sm font-bold uppercase tracking-wider ${result.simplesVantajoso ? 'text-emerald-800' : 'text-blue-800'}`}>
                     {result.simplesVantajoso ? 'Manter Simples Tradicional' : 'Migrar para Regime Híbrido'}
@@ -116,7 +111,6 @@ export function SimuladorReformaPage() {
               </div>
             </div>
 
-            {/* Cards de Valores */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               <div className="p-5 rounded-xl border border-slate-200 bg-slate-50 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-slate-400"></div>
@@ -132,43 +126,59 @@ export function SimuladorReformaPage() {
               </div>
             </div>
 
-            {/* Memória de Cálculo Detalhada */}
             <div className="mt-8">
               <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                <Info className="w-4 h-4 text-slate-400" /> Detalhamento do Regime Híbrido
+                <Info className="w-4 h-4 text-slate-400" /> Memória de Cálculo Detalhada (Regime Híbrido)
               </h4>
+              
               <div className="overflow-x-auto rounded-xl border border-slate-200">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
                     <tr>
-                      <th className="py-3 px-4">Componente</th>
+                      <th className="py-3 px-4">Componente a Recolher</th>
                       <th className="py-3 px-4">Alíquota Efetiva</th>
-                      <th className="py-3 px-4 text-right">Valor a Pagar</th>
+                      <th className="py-3 px-4 text-right">Valor Parcial</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
                     <tr>
                       <td className="py-3 px-4">DAS Mantido (Serviços)</td>
-                      <td className="py-3 px-4 font-mono text-xs">{formatPercent(result.aliqSimplesServ)} (Reduzida)</td>
+                      <td className="py-3 px-4 font-mono text-xs">{formatPercent(result.aliqSimplesServ)} (Parcial)</td>
                       <td className="py-3 px-4 text-right font-mono font-medium">{formatCurrency(result.dasReduzidoServ)}</td>
                     </tr>
                     <tr>
                       <td className="py-3 px-4">DAS Mantido (Comércio)</td>
-                      <td className="py-3 px-4 font-mono text-xs">{formatPercent(result.aliqSimplesCom)} (Reduzida)</td>
+                      <td className="py-3 px-4 font-mono text-xs">{formatPercent(result.aliqSimplesCom)} (Parcial)</td>
                       <td className="py-3 px-4 text-right font-mono font-medium">{formatCurrency(result.dasReduzidoCom)}</td>
                     </tr>
-                    <tr className="bg-slate-50">
-                      <td className="py-3 px-4 font-bold text-slate-900">CBS/IBS Apurado</td>
-                      <td className="py-3 px-4 font-mono text-xs text-brand-600 font-bold">{formatPercent(result.aliqConjuntaIbsCbs)} (Ano {ano})</td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">{formatCurrency(result.cbsApurada)}</td>
+                    <tr className="bg-brand-50">
+                      <td className="py-3 px-4 font-bold text-brand-900">CBS/IBS Apurado (Não-Cumulativo)</td>
+                      <td className="py-3 px-4 font-mono text-xs text-brand-700 font-bold">{formatPercent(result.aliqConjuntaIbsCbs)} (Ano {ano})</td>
+                      <td className="py-3 px-4 text-right font-mono font-bold text-brand-900">{formatCurrency(result.cbsApurada)}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-              <div className="mt-3 p-3 bg-slate-50 border border-slate-100 rounded-lg text-xs text-slate-500 flex items-start gap-2">
-                <ArrowRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                <p>No modelo Híbrido, a empresa abate os créditos de compras ({formatCurrency(parseNumberInput(compras))}) gerando um débito líquido de CBS/IBS. O DAS continua sendo pago, porém sem as parcelas substituídas.</p>
+
+              {/* ===== NOVA CAIXA EXPLÍCITA DE DÉBITO X CRÉDITO ===== */}
+              <div className="mt-4 p-5 bg-white border border-slate-200 rounded-xl space-y-2.5 text-xs font-mono shadow-sm">
+                <div className="text-slate-500 uppercase tracking-widest font-bold font-sans border-b border-slate-100 pb-2 mb-3">
+                  Lógica de Apuração CBS/IBS
+                </div>
+                <div className="flex justify-between items-center text-slate-700">
+                  <span>Débito Bruto sobre Receita (R$ {formatCurrency(parseNumberInput(recServ) + parseNumberInput(recCom))} × {formatPercent(result.aliqConjuntaIbsCbs)}):</span>
+                  <span className="font-bold">{formatCurrency(result.debitoBrutoIbsCbs)}</span>
+                </div>
+                <div className="flex justify-between items-center text-emerald-600">
+                  <span>Crédito sobre Compras (R$ {formatCurrency(parseNumberInput(compras))} × {formatPercent(result.aliqConjuntaIbsCbs)}):</span>
+                  <span className="font-bold">- {formatCurrency(result.creditoFornecedores)}</span>
+                </div>
+                <div className="flex justify-between items-center font-bold border-t border-slate-100 pt-3 mt-1 text-sm text-brand-800">
+                  <span>CBS/IBS Líquido a Pagar:</span>
+                  <span>{formatCurrency(result.cbsApurada)}</span>
+                </div>
               </div>
+
             </div>
           </div>
         </div>
