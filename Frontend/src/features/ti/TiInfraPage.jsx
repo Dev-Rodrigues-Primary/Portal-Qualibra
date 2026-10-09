@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
-import { Server, HardDrive, ShieldCheck, Wifi, RefreshCw, LifeBuoy, AlertCircle, Copy, Check } from 'lucide-react';
+import { Server, HardDrive, ShieldCheck, Wifi, RefreshCw, LifeBuoy, AlertCircle, Copy, Check, Activity } from 'lucide-react';
 
 export function TiInfraPage() {
   const [copied, setCopied] = useState('');
   const [latency, setLatency] = useState(null);
-  const [testingPing, setTestingPing] = useState(false);
+  const [lastCheck, setLastCheck] = useState('');
+  const [counter, setCounter] = useState(0);
 
-  // Teste de ping real do navegador até o servidor local
+  // TELEMETRIA VIVA A CADA 2 SEGUNDOS
   const checkRealPing = async () => {
-    setTestingPing(true);
     const start = performance.now();
     try {
       await fetch('/favicon.ico', { cache: 'no-store' });
       const end = performance.now();
       setLatency(Math.round(end - start));
+      setLastCheck(new Date().toLocaleTimeString('pt-BR'));
+      setCounter(c => c + 1);
     } catch (err) {
       setLatency(-1);
-    } finally {
-      setTestingPing(false);
     }
   };
 
   useEffect(() => {
     checkRealPing();
+    const interval = setInterval(checkRealPing, 2000); // 2 segundos cravados
+    return () => clearInterval(interval);
   }, []);
 
   const handleCopy = (text, label) => {
@@ -47,18 +49,16 @@ export function TiInfraPage() {
           <h2 className="text-2xl font-extrabold text-slate-900 mt-2">TI, Redes & Conectividade</h2>
           <p className="text-xs text-slate-500 mt-1">Orientações de acesso à rede local, diagnóstico de conectividade e suporte.</p>
         </div>
-        
-        <button 
-          onClick={checkRealPing} 
-          disabled={testingPing}
-          className="no-print px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 flex items-center gap-2 shadow-xs transition"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${testingPing ? 'animate-spin' : ''}`} />
-          {testingPing ? 'Testando...' : 'Testar Conexão Local'}
-        </button>
+
+        {/* INDICADOR VIVO DE ATUALIZAÇÃO AUTOMÁTICA */}
+        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl text-xs font-mono">
+          <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
+          <span className="font-bold text-slate-700">Telemetria Ativa</span>
+          <span className="text-slate-400">• Atualizando a cada 2s</span>
+        </div>
       </div>
 
-      {/* DIAGNÓSTICO EM TEMPO REAL DA SUA MÁQUINA */}
+      {/* DIAGNÓSTICO EM TEMPO REAL DA MÁQUINA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -73,15 +73,17 @@ export function TiInfraPage() {
           <span className="text-xs font-bold px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">Conectado</span>
         </div>
 
+        {/* LATÊNCIA DINÂMICA (2s) */}
         <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600">
               <Server className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase block font-mono">Latência p/ o Portal</span>
-              <span className="text-sm font-black text-slate-800 font-mono">
-                {latency === null ? 'Calculando...' : latency === -1 ? 'Falha' : `${latency} ms`}
+              <span className="text-[10px] font-bold text-slate-400 uppercase block font-mono">Latência ao Servidor</span>
+              <span className="text-sm font-black text-slate-800 font-mono flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${latency !== null && latency !== -1 ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
+                {latency === null ? 'Medindo...' : latency === -1 ? 'Falha' : `${latency} ms`}
               </span>
             </div>
           </div>
@@ -104,7 +106,7 @@ export function TiInfraPage() {
         </div>
       </div>
 
-      {/* GUIA DE UNIDADES DE REDE E MAPEAMENTO (UTILIDADE REAL) */}
+      {/* GUIA DE UNIDADES DE REDE E MAPEAMENTO */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="glass-panel p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-xs">
           <h3 className="font-bold text-slate-900 text-sm border-b pb-2 flex items-center gap-2">
@@ -122,7 +124,7 @@ export function TiInfraPage() {
               </div>
               <button 
                 onClick={() => handleCopy('\\\\192.168.191.250\\Publico', 'pub')} 
-                className="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-xs font-bold flex items-center gap-1 shadow-2xs"
+                className="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-xs font-bold flex items-center gap-1 shadow-2xs cursor-pointer"
               >
                 {copied === 'pub' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
                 <span>{copied === 'pub' ? 'Copiado!' : 'Copiar'}</span>
@@ -136,7 +138,7 @@ export function TiInfraPage() {
               </div>
               <button 
                 onClick={() => handleCopy('\\\\192.168.191.250\\Sistemas', 'sis')} 
-                className="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-xs font-bold flex items-center gap-1 shadow-2xs"
+                className="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-xs font-bold flex items-center gap-1 shadow-2xs cursor-pointer"
               >
                 {copied === 'sis' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
                 <span>{copied === 'sis' ? 'Copiado!' : 'Copiar'}</span>
@@ -145,7 +147,7 @@ export function TiInfraPage() {
           </div>
         </div>
 
-        {/* SUPORTE RÁPIDO E INSTRUÇÕES */}
+        {/* SUPORTE RÁPIDO */}
         <div className="glass-panel p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-xs">
           <h3 className="font-bold text-slate-900 text-sm border-b pb-2 flex items-center gap-2">
             <LifeBuoy className="w-4 h-4 text-purple-600" /> O que fazer se um sistema estiver fora?
@@ -174,3 +176,4 @@ export function TiInfraPage() {
 }
 
 export { TiInfraPage as TIInfraPage };
+export default TiInfraPage;

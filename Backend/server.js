@@ -1,88 +1,66 @@
 import express from 'express';
-import cors from 'cors';
-import os from 'os';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const HOST = '127.0.0.1'; // Escuta apenas localmente
 
-app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
 
-// 1. Endpoint de Saúde e Monitoramento Real da Máquina
 app.get('/api/status', (req, res) => {
-  const freeMem = (os.freemem() / (1024 * 1024 * 1024)).toFixed(2);
-  const totalMem = (os.totalmem() / (1024 * 1024 * 1024)).toFixed(2);
-  const uptimeHours = (os.uptime() / 3600).toFixed(1);
-
-  res.json({
-    status: 'ONLINE',
-    servidor: 'Servidor Qualibra Local',
-    sistema: `${os.type()} ${os.release()}`,
-    porta: PORT,
-    ipLocal: '192.168.191.204',
-    memoriaLivreGB: `${freeMem} GB / ${totalMem} GB`,
-    uptimeHoras: `${uptimeHours} horas`,
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'ONLINE', timestamp: new Date().toISOString() });
 });
 
-// 2. Endpoint Real de Consulta CNPJ (Consome dados oficiais via BrasilAPI sem bloqueio de CORS)
 app.get('/api/cnpj/:cnpj', async (req, res) => {
-  const cnpjLimpo = req.params.cnpj.replace(/\D/g, '');
-
-  if (cnpjLimpo.length !== 14) {
-    return res.status(400).json({ error: 'CNPJ deve conter exatamente 14 dígitos numéricos.' });
-  }
-
+  const cnpjLimpo = (req.params.cnpj || '').replace(/\D/g, '');
+  if (cnpjLimpo.length !== 14) return res.status(400).json({ error: 'CNPJ inválido' });
   try {
     const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjLimpo}`);
-    if (!response.ok) {
-      if (response.status === 404) {
-        return res.status(404).json({ error: 'CNPJ não encontrado na base oficial da Receita Federal.' });
-      }
-      return res.status(response.status).json({ error: 'Erro ao consultar a base da Receita Federal.' });
-    }
-    const data = await response.json();
-    return res.json(data);
-  } catch (error) {
-    return res.status(500).json({ error: 'Falha na comunicação com o serviço da Receita Federal.' });
-  }
-});
-
-// 3. Endpoint Real de Consulta CEP
-app.get('/api/cep/:cep', async (req, res) => {
-  const cepLimpo = req.params.cep.replace(/\D/g, '');
-
-  if (cepLimpo.length !== 8) {
-    return res.status(400).json({ error: 'CEP deve conter exatamente 8 dígitos numéricos.' });
-  }
-
-  try {
-    const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cepLimpo}`);
-    if (!response.ok) {
-      return res.status(404).json({ error: 'CEP não localizado nos Correios.' });
-    }
-    const data = await response.json();
-    return res.json(data);
-  } catch (error) {
-    return res.status(500).json({ error: 'Falha na comunicação com o serviço de CEP.' });
-  }
-});
-
-// 4. Endpoint de Feriados Nacionais Oficiais
-app.get('/api/feriados/:ano', async (req, res) => {
-  const ano = req.params.ano || new Date().getFullYear();
-  try {
-    const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${ano}`);
-    if (!response.ok) throw new Error();
+    if (!response.ok) return res.status(response.status).json({ error: 'Não encontrado' });
     const data = await response.json();
     return res.json(data);
   } catch {
-    return res.status(500).json({ error: 'Não foi possível carregar os feriados nacionais.' });
+    return res.status(502).json({ error: 'Falha na consulta' });
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[BACKEND QUALIBRA] Rodando com sucesso na porta ${PORT}`);
-  console.log(`[STATUS ENDPOINT] http://localhost:${PORT}/api/status`);
+app.get('/api/cep/:cep', async (req, res) => {
+  const cepLimpo = (req.params.cep || '').replace(/\D/g, '');
+  if (cepLimpo.length !== 8) return res.status(400).json({ error: 'CEP inválido' });
+  try {
+    const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cepLimpo}`);
+    if (!response.ok) return res.status(404).json({ error: 'Não encontrado' });
+    const data = await response.json();
+    return res.json(data);
+  } catch {
+    return res.status(502).json({ error: 'Falha na consulta' });
+  }
+});
+
+const IDEIAS_FILE = path.join(__dirname, 'data', 'ideias_sugestoes.json');
+app.post('/api/ideias', (req, res) => {
+  const { nome, setor, emailRemetente, titulo, descricao } = req.body || {};
+  if (!nome || !emailRemetente || !titulo || !descricao) {
+    return res.status(400).json({ error: 'Campos incompletos' });
+  }
+  const novaIdeia = { id: Date.now().toString(), data: new Date().toISOString(), nome, setor, email: emailRemetente, titulo, descricao };
+  try {
+    const dir = path.dirname(IDEIAS_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    let lista = fs.existsSync(IDEIAS_FILE) ? JSON.parse(fs.readFileSync(IDEIAS_FILE, 'utf-8')) : [];
+    lista.unshift(novaIdeia);
+    fs.writeFileSync(IDEIAS_FILE, JSON.stringify(lista.slice(0, 500), null, 2), 'utf-8');
+    return res.json({ success: true });
+  } catch {
+    return res.status(500).json({ error: 'Erro ao salvar' });
+  }
+});
+
+app.listen(PORT, HOST, () => {
+  console.log(`[QUALIBRA BACKEND] Ativo em http://${HOST}:${PORT}`);
 });
