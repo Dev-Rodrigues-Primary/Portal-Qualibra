@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { QualibraLogo } from '../../components/common/QualibraLogo';
-import { Calculator, PieChart, Users, Coins, ArrowRight, Layers, Phone } from 'lucide-react';
+import { Calculator, PieChart, Users, Coins, ArrowRight, Layers, Phone, AlertTriangle } from 'lucide-react';
 
 export function IntroPage() {
   const navigate = useNavigate();
@@ -54,9 +54,18 @@ export function IntroPage() {
   ];
 
   return (
-    <div className="space-y-12 animate-fade-in-up py-4">
+    <div className="space-y-10 animate-fade-in-up py-4">
+      
+      {/* AVISO DE HOMOLOGAÇÃO NO CANTO SUPERIOR DIREITO */}
+      <div className="flex justify-end">
+        <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-300 text-amber-900 px-4 py-2 rounded-2xl text-xs font-semibold shadow-2xs">
+          <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 animate-pulse" />
+          <span><b>ATENÇÃO:</b> Portal em fase de testes/homologação. Revise e valide todos os dados calculados antes do uso oficial!</span>
+        </div>
+      </div>
+
       {/* Intro Header */}
-      <div className="text-center max-w-3xl mx-auto space-y-5 pt-4">
+      <div className="text-center max-w-3xl mx-auto space-y-5 pt-2">
         <div className="flex justify-center mb-4">
           <QualibraLogo size="xl" showText={true} layout="vertical" />
         </div>
@@ -86,7 +95,7 @@ export function IntroPage() {
         </div>
       </div>
 
-      {/* Grid de Destaques com Hovers Prismáticos */}
+      {/* Grid de Destaques */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
         {highlightCards.map((card, idx) => {
           const IconComponent = card.Icon;

@@ -6,7 +6,8 @@ import { QualibraLogo } from '../../components/common/QualibraLogo';
 import {
   Search, Star, ArrowRight, Calculator, CheckSquare,
   FileText, CalendarDays, BarChart3, ExternalLink, BookOpen, Server,
-  Sparkles, Layers, Scale, Coins, Printer, LayoutList, LayoutGrid, Phone
+  Sparkles, Layers, Scale, Coins, Printer, LayoutList, LayoutGrid, Phone,
+  AlertTriangle
 } from 'lucide-react';
 
 export function DashboardPage() {
@@ -43,35 +44,46 @@ export function DashboardPage() {
   ];
 
   const filteredToolsMap = useMemo(() => {
-    const q = searchTerm.toLowerCase();
+    const q = (searchTerm || '').toLowerCase();
     const map = {};
-    PORTAL_REGISTRY.forEach(t => {
-      if (t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.subCategory.toLowerCase().includes(q)) map[t.id] = t;
+    (PORTAL_REGISTRY || []).forEach(t => {
+      const title = (t.title || '').toLowerCase();
+      const desc = (t.desc || '').toLowerCase();
+      const sub = (t.subCategory || '').toLowerCase();
+      if (title.includes(q) || desc.includes(q) || sub.includes(q)) map[t.id] = t;
     });
     return map;
   }, [searchTerm]);
 
-  const favoriteTools = PORTAL_REGISTRY.filter((t) => favorites.includes(t.id));
+  const favoriteTools = (PORTAL_REGISTRY || []).filter((t) => Array.isArray(favorites) && favorites.includes(t.id));
 
   return (
     <div className="space-y-8 animate-fade-in-up">
       
-      {/* HEADER BANNER BRANCO COM A MARCA QUALIBRA */}
+      {/* HEADER BANNER BRANCO */}
       <div className="relative overflow-hidden rounded-3xl p-8 lg:p-10 border border-slate-200 bg-white shadow-xs">
-        {/* Manchas sutis com as cores do origami */}
         <div className="absolute -top-24 -right-24 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
+        {/* TOPO DO BANNER: TAGS + AVISO DE TESTE / ISENÇÃO NO CANTO DIREITO */}
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Servidor Operacional Interno
+            </span>
+            <span className="text-xs font-mono text-slate-400">• v3.0 Homologada</span>
+          </div>
+
+          {/* BADGE DE AVISO DE TESTES / ISENÇÃO */}
+          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-300 text-amber-900 px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-2xs">
+            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 animate-pulse" />
+            <span><b>ATENÇÃO:</b> Portal em fase de testes. Sempre revise e valide os dados calculados!</span>
+          </div>
+        </div>
+
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="max-w-2xl space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                Servidor Operacional Interno
-              </span>
-              <span className="text-xs font-mono text-slate-400">• v3.0 Homologada</span>
-            </div>
-            
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               Portal de Ferramentas & Rotinas
             </h2>
@@ -141,7 +153,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      {/* LISTAGEM PRINCIPAL COM HOVERS BRILHANTES */}
+      {/* LISTAGEM PRINCIPAL */}
       {viewMode === 'list' ? (
         <div className="space-y-6">
           {sections.map((sec, sIdx) => {
