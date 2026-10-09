@@ -57,12 +57,7 @@ export function IntroPage() {
     <div className="space-y-10 animate-fade-in-up py-4">
       
       {/* AVISO DE HOMOLOGAÇÃO NO CANTO SUPERIOR DIREITO */}
-      <div className="flex justify-end">
-        <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-300 text-amber-900 px-4 py-2 rounded-2xl text-xs font-semibold shadow-2xs">
-          <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 animate-pulse" />
-          <span><b>ATENÇÃO:</b> Portal em fase de testes/homologação. Revise e valide todos os dados calculados antes do uso oficial!</span>
-        </div>
-      </div>
+      
 
       {/* Intro Header */}
       <div className="text-center max-w-3xl mx-auto space-y-5 pt-2">

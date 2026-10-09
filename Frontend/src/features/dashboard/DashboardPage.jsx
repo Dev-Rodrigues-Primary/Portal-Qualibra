@@ -66,40 +66,7 @@ export function DashboardPage() {
         <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* TOPO DO BANNER: TAGS + AVISO DE TESTE / ISENÇÃO NO CANTO DIREITO */}
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-              Servidor Operacional Interno
-            </span>
-            <span className="text-xs font-mono text-slate-400">• v3.0 Homologada</span>
-          </div>
-
-          {/* BADGE DE AVISO DE TESTES / ISENÇÃO */}
-          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-300 text-amber-900 px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-2xs">
-            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 animate-pulse" />
-            <span><b>ATENÇÃO:</b> Portal em fase de testes. Sempre revise e valide os dados calculados!</span>
-          </div>
-        </div>
-
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="max-w-2xl space-y-3">
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-              Portal de Ferramentas & Rotinas
-            </h2>
-            
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Ambiente de alta precisão contábil, tributária e trabalhista do <b>Grupo Qualibra Contabilidade</b>. Selecione uma ferramenta ou pesquise no catálogo unificado.
-            </p>
-          </div>
-
-          <div className="hidden lg:block p-4 bg-slate-50/80 border border-slate-200 rounded-2xl flex-shrink-0 qualibra-shine">
-            <QualibraLogo size="lg" showText={true} layout="vertical" />
-            <div className="text-center mt-2 text-[11px] font-mono font-bold text-slate-600">
-              (11) 2897-4595
-            </div>
-          </div>
-        </div>
+        <div className="relative z-10 flex items-center gap-2 mb-2"><span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Servidor Operacional Interno</span><span className="text-xs font-mono text-slate-400">• v3.0 Homologada</span></div>
 
         {/* Barra de Pesquisa Integrada */}
         <div className="relative z-10 mt-6 flex gap-3">
