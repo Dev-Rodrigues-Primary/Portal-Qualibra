@@ -67,7 +67,7 @@ export function IntroPage() {
 
         <div className="flex justify-center">
           <span className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-900 bg-amber-50 border border-amber-200 px-4 py-1.5 rounded-full uppercase tracking-wider">
-            <Layers className="w-3.5 h-3.5 text-amber-600" /> Servidor Operacional Corporativo
+            <Layers className="w-3.5 h-3.5 text-amber-600" /> Ambiente de Homologação Interna
           </span>
         </div>
 
@@ -76,7 +76,7 @@ export function IntroPage() {
         </h2>
         
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Hub unificado com regras tributárias de 2026, cálculo de GAP em tempo real, bases de DCTFWeb/eSocial e geradores com conversão por extenso.
+          Hub de simulações preliminares para suporte às rotinas fiscais e trabalhistas. Todos os valores gerados requerem validação técnica do responsável.
         </p>
 
         <div className="pt-3 flex flex-wrap justify-center gap-3">

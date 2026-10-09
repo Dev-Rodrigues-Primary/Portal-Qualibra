@@ -89,3 +89,16 @@
   body, html { background: #ffffff !important; color: #000000 !important; }
   .glass-panel, .glass-card { background: transparent !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
 }
+@media print {
+  body::before {
+    content: "DOCUMENTO PRELIMINAR DE HOMOLOGAÇÃO - NÃO CONSTITUI GUIA OFICIAL - OBRIGATÓRIA VALIDAÇÃO CONTÁBIL";
+    display: block;
+    text-align: center;
+    font-size: 9px;
+    font-weight: bold;
+    color: #64748b;
+    border-bottom: 1px dashed #cbd5e1;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+}
