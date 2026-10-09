@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateFatorRCompleto } from '../../domain/taxCalculators';
+import { CurrencyInput } from '../../components/common/CurrencyInput';
 import { formatCurrency, formatPercent, parseNumberInput } from '../../utils/formatters';
 import { PieChart, CheckCircle2, AlertCircle, TrendingUp, DollarSign, Calculator, Info } from 'lucide-react';
 
@@ -38,30 +39,21 @@ export function SimuladorFatorRPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Faturamento Acumulado 12m (RBT12)</label>
-                <input 
-                  type="number" 
-                  value={rbt12} 
-                  onChange={e=>setRbt12(e.target.value)} 
+                <CurrencyInput value={rbt12} onChange={setRbt12} 
                   className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900 font-bold text-base shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
                 />
               </div>
               
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Folha + Pró-Labore 12m (FS12)</label>
-                <input 
-                  type="number" 
-                  value={folha12} 
-                  onChange={e=>setFolha12(e.target.value)} 
+                <CurrencyInput value={folha12} onChange={setFolha12} 
                   className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900 font-bold text-base shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
                 />
               </div>
 
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mt-2">
                 <label className="block text-xs font-bold text-slate-700 mb-1">Receita Média do Mês Atual (Projeção)</label>
-                <input 
-                  type="number" 
-                  value={receitaMes} 
-                  onChange={e=>setReceitaMes(e.target.value)} 
+                <CurrencyInput value={receitaMes} onChange={setReceitaMes} 
                   className="w-full p-3 rounded-lg border border-brand-300 bg-white text-brand-900 font-bold text-lg shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
                 />
                 <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed">

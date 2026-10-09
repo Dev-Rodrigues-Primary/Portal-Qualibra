@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateRescisaoCLTCompleto } from '../../domain/taxCalculators';
+import { CurrencyInput } from '../../components/common/CurrencyInput';
 import { formatCurrency, parseNumberInput } from '../../utils/formatters';
 import { Calculator, Printer, ShieldCheck, HelpCircle } from 'lucide-react';
 
@@ -47,7 +48,7 @@ export function SimuladorRescisaoPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700">Salário Base p/ Fins Rescisórios (R$)</label>
-                <input type="number" value={salario} onChange={e=>setSalario(e.target.value)} className="w-full p-2.5 mt-1 rounded-lg border border-slate-300 text-sm font-bold text-slate-900 shadow-sm"/>
+                <CurrencyInput value={salario} onChange={setSalario} className="w-full p-2.5 mt-1 rounded-lg border border-slate-300 text-sm font-bold text-slate-900 shadow-sm"/>
               </div>
 
               <div>
@@ -76,7 +77,7 @@ export function SimuladorRescisaoPage() {
 
               <div>
                 <label className="block text-xs font-bold text-brand-700 mb-1">Saldo Histórico Recolhido CEF para a Multa Rescisória do FGTS (R$)</label>
-                <input type="number" value={fgts} onChange={e=>setFgts(e.target.value)} className="w-full p-2.5 rounded-lg border border-brand-300 bg-brand-50 text-sm font-bold text-brand-900 shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition" />
+                <CurrencyInput value={fgts} onChange={setFgts} className="w-full p-2.5 rounded-lg border border-brand-300 bg-brand-50 text-sm font-bold text-brand-900 shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition" />
               </div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { Printer, Copy, Check, QrCode, Building2, CheckCircle2 } from 'lucide-react';
+import { CurrencyInput } from '../../components/common/CurrencyInput';
 import { formatCurrency, valorPorExtenso } from '../../utils/formatters';
 
 export function GeradoresPage() {
@@ -102,10 +103,7 @@ Assinatura do Beneficiário`;
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Valor Líquido (R$)</label>
-                  <input 
-                    type="number" 
-                    value={valor} 
-                    onChange={e => setValor(parseFloat(e.target.value) || 0)} 
+                  <CurrencyInput value={valor} onChange={setValor} 
                     className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm font-mono font-bold text-brand-700" 
                   />
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateSimplesPresumidoExato } from '../../domain/taxCalculators';
+import { CurrencyInput } from '../../components/common/CurrencyInput';
 import { formatCurrency, formatPercent, parseNumberInput } from '../../utils/formatters';
 import { Scale, CheckCircle, Info, Printer, ShieldAlert, Building2 } from 'lucide-react';
 
@@ -63,20 +64,14 @@ export function SimuladorSimplesPresumidoPage() {
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Faturamento Anual (R$)</label>
-                  <input
-                    type="number"
-                    value={faturamento}
-                    onChange={(e) => setFaturamento(e.target.value)}
+                  <CurrencyInput value={faturamento} onChange={setFaturamento}
                     className="w-full p-3 rounded-lg border border-brand-300 bg-white text-brand-900 font-bold text-lg shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Folha Salarial + Pró-Labore Anual (R$)</label>
-                  <input
-                    type="number"
-                    value={folha}
-                    onChange={(e) => setFolha(e.target.value)}
+                  <CurrencyInput value={folha} onChange={setFolha}
                     className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900 font-bold text-base shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
                   />
                 </div>

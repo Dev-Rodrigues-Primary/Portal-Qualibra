@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateProlabore } from '../../domain/taxCalculators';
+import { CurrencyInput } from '../../components/common/CurrencyInput';
 import { formatCurrency, formatPercent, parseNumberInput } from '../../utils/formatters';
 import { Coins, ShieldCheck, Printer, UserCheck, Info, CheckCircle2 } from 'lucide-react';
 
@@ -57,10 +58,7 @@ export function SimuladorProlaborePage() {
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Pró-Labore Bruto Mensal Desejado (R$)
                 </label>
-                <input
-                  type="number"
-                  value={valor}
-                  onChange={(e) => setValor(e.target.value)}
+                <CurrencyInput value={valor} onChange={setValor}
                   className="w-full p-3 rounded-lg border border-purple-300 bg-purple-50/30 text-purple-950 font-bold text-lg shadow-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
                 />
                 <span className="text-[10px] text-slate-400 mt-1 block">

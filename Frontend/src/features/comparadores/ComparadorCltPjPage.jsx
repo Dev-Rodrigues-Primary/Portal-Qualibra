@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateCltVsPj } from '../../domain/taxCalculators';
+import { CurrencyInput } from '../../components/common/CurrencyInput';
 import { formatCurrency, parseNumberInput } from '../../utils/formatters';
 import { Scale, CheckCircle2, ArrowRight, Printer, Briefcase, Building } from 'lucide-react';
 
@@ -62,20 +63,14 @@ export function ComparadorCltPjPage() {
 
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">Salário CLT Bruto Mensal (R$)</label>
-            <input
-              type="number"
-              value={salarioClt}
-              onChange={(e) => setSalarioClt(e.target.value)}
+            <CurrencyInput value={salarioClt} onChange={setSalarioClt}
               className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm font-mono"
             />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">Valor da Nota Fiscal PJ (R$)</label>
-            <input
-              type="number"
-              value={valorPj}
-              onChange={(e) => setValorPj(e.target.value)}
+            <CurrencyInput value={valorPj} onChange={setValorPj}
               className="w-full px-3.5 py-2.5 rounded-xl glass-input text-sm font-mono"
             />
           </div>

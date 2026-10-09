@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateReformaIntegral } from '../../domain/taxCalculators';
+import { CurrencyInput } from '../../components/common/CurrencyInput';
 import { formatCurrency, formatPercent, parseNumberInput } from '../../utils/formatters';
 import { Calculator, Sliders, CheckCircle, TrendingDown, Printer, Layers, Info, ArrowRight } from 'lucide-react';
 
@@ -49,16 +50,16 @@ export function SimuladorReformaPage() {
               <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Faturamento 12 Meses (RBT12)</label>
-                  <input type="number" value={rbt12} onChange={(e) => setRbt12(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
+                  <CurrencyInput value={rbt12} onChange={setRbt12} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Receita Serviços</label>
-                    <input type="number" value={recServ} onChange={(e) => setRecServ(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
+                    <CurrencyInput value={recServ} onChange={setRecServ} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Receita Comércio</label>
-                    <input type="number" value={recCom} onChange={(e) => setRecCom(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
+                    <CurrencyInput value={recCom} onChange={setRecCom} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
                   </div>
                 </div>
               </div>
@@ -77,7 +78,7 @@ export function SimuladorReformaPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Compras Creditáveis</label>
-                    <input type="number" value={compras} onChange={(e) => setCompras(e.target.value)} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
+                    <CurrencyInput value={compras} onChange={setCompras} className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono" />
                   </div>
                 </div>
                 <div>

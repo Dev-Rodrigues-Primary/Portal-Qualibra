@@ -113,10 +113,7 @@ export function DiagnosticosPage() {
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Faturamento Bruto Acumulado 12 Meses - RBT12 (R$)
                 </label>
-                <input
-                  type="number"
-                  value={faturamento}
-                  onChange={(e) => setFaturamento(e.target.value)}
+                <CurrencyInput value={faturamento} onChange={setFaturamento}
                   className="w-full p-3 rounded-lg border border-brand-300 bg-brand-50/20 text-brand-950 font-bold text-base shadow-sm focus:border-brand-500 transition font-mono"
                 />
               </div>
@@ -125,10 +122,7 @@ export function DiagnosticosPage() {
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Folha Salarial + Pró-Labore Acumulada 12 Meses - FS12 (R$)
                 </label>
-                <input
-                  type="number"
-                  value={folha}
-                  onChange={(e) => setFolha(e.target.value)}
+                <CurrencyInput value={folha} onChange={setFolha}
                   className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900 font-bold text-base shadow-sm focus:border-brand-500 transition font-mono"
                 />
               </div>
@@ -137,10 +131,7 @@ export function DiagnosticosPage() {
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Custos Operacionais Anuais (Despesas + Insumos) (R$)
                 </label>
-                <input
-                  type="number"
-                  value={custosOperacionais}
-                  onChange={(e) => setCustosOperacionais(e.target.value)}
+                <CurrencyInput value={custosOperacionais} onChange={setCustosOperacionais}
                   className="w-full p-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-sm font-mono shadow-sm"
                 />
               </div>
