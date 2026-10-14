@@ -1,9 +1,24 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { Breadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { calculateFatorRCompleto } from '../../domain/taxCalculators';
 import { CurrencyInput } from '../../components/common/CurrencyInput';
 import { formatCurrency, formatPercent, parseNumberInput } from '../../utils/formatters';
-import { PieChart, CheckCircle2, AlertCircle, TrendingUp, DollarSign, Calculator, Info } from 'lucide-react';
+import { 
+  PieChart, 
+  CheckCircle2, 
+  AlertCircle, 
+  TrendingUp, 
+  DollarSign, 
+  Calculator, 
+  Info, 
+  Printer, 
+  ShieldCheck, 
+  Sparkles, 
+  Users, 
+  ArrowRight,
+  HelpCircle,
+  Briefcase
+} from 'lucide-react';
 
 export function SimuladorFatorRPage() {
   const [rbt12, setRbt12] = useState(1200000);
@@ -11,186 +26,402 @@ export function SimuladorFatorRPage() {
   const [receitaMes, setReceitaMes] = useState(100000);
   const [socioNoTeto, setSocioNoTeto] = useState(false);
 
+  // Blindagem de inputs: fallback || 0 evita NaN e divisão por zero
   const res = useMemo(() => calculateFatorRCompleto({
-    rbt12: parseNumberInput(rbt12), folha12: parseNumberInput(folha12), receitaMes: parseNumberInput(receitaMes), socioNoTetoInss: socioNoTeto
+    rbt12: parseNumberInput(rbt12) || 0, 
+    folha12: parseNumberInput(folha12) || 0, 
+    receitaMes: parseNumberInput(receitaMes) || 0, 
+    socioNoTetoInss: !!socioNoTeto
   }), [rbt12, folha12, receitaMes, socioNoTeto]);
 
-  return (
-    <div className="space-y-6 pb-12 animate-fade-in-up">
-      <div className="no-print"><Breadcrumbs items={[{ label: 'Planejamento de Fator R (LC 123/2006)' }]} /></div>
+  const atingiuMeta = res.enquadraAnexo3;
+  const progressoBarra = Math.min(100, Math.max(0, res.fatorR || 0));
 
-      <div className="glass-panel p-6 lg:p-8 rounded-2xl border border-slate-200 flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Análise Estratégica do Fator R</h2>
-          <p className="text-sm text-slate-500 mt-1 max-w-3xl">
-            Validação do enquadramento (Anexo III vs Anexo V) e cálculo marginal exato da economia líquida ajustando o Pró-Labore.
-          </p>
+  return (
+    <div className="space-y-6 pb-16 animate-fade-in-up">
+      
+      {/* NAVEGAÇÃO / BREADCRUMBS */}
+      <div className="no-print">
+        <Breadcrumbs items={[{ label: 'Planejamento Tributário' }, { label: 'Otimização de Fator R (LC 123/2006)' }]} />
+      </div>
+
+      {/* HEADER EXECUTIVO PREMIUM */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 p-6 lg:p-8 text-white shadow-xl border border-slate-700/60">
+        <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute right-32 -bottom-20 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+
+        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-2 max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-400/30 backdrop-blur-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                Lei Complementar nº 123/2006 • Art. 18
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                <ShieldCheck className="w-3 h-3" /> Corte Legal: Folha ≥ 28%
+              </span>
+            </div>
+
+            <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-white flex items-center gap-3">
+              Análise Estratégica do Fator R
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+              Simule o enquadramento entre o <b>Anexo III</b> (alíquota a partir de 6%) e o <b>Anexo V</b> (a partir de 15,5%), calculando o custo marginal exato no CPF do sócio para maximizar o lucro líquido.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 no-print w-full sm:w-auto">
+            <button 
+              onClick={() => window.print()} 
+              className="w-full sm:w-auto px-4 py-3 bg-white/10 hover:bg-white/20 active:scale-95 text-white font-semibold text-xs rounded-xl backdrop-blur-md border border-white/20 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow"
+            >
+              <Printer className="w-4 h-4 text-slate-200" />
+              <span>Imprimir Parecer</span>
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* GRID DE TRABALHO */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        {/* PARÂMETROS OPERACIONAIS (Lado Esquerdo) */}
+        
+        {/* COLUNA ESQUERDA: PARÂMETROS DA EMPRESA */}
         <div className="no-print xl:col-span-4 space-y-4">
-          <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-5">
-            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-              <Calculator className="w-5 h-5 text-brand-600"/> Dados Atuais da Empresa
-            </h3>
+          <div className="rounded-3xl border border-slate-200 bg-white/90 backdrop-blur-md p-6 shadow-sm hover:shadow-md transition-shadow duration-300 space-y-5">
             
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                <Calculator className="w-4 h-4 text-amber-600" />
+                Dados Contábeis da Empresa
+              </h3>
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                12 Meses
+              </span>
+            </div>
+
             <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Faturamento Acumulado 12m (RBT12)</label>
-                <CurrencyInput value={rbt12} onChange={setRbt12} 
-                  className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900 font-bold text-base shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
-                />
-              </div>
               
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Folha + Pró-Labore 12m (FS12)</label>
-                <CurrencyInput value={folha12} onChange={setFolha12} 
-                  className="w-full p-3 rounded-lg border border-slate-300 bg-white text-slate-900 font-bold text-base shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
+              {/* RBT12 */}
+              <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-slate-50 transition-all">
+                <label className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 mb-1">
+                  Receita Bruta 12 Meses (RBT12)
+                </label>
+                <CurrencyInput 
+                  value={rbt12} 
+                  onChange={setRbt12} 
+                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white font-black text-slate-900 text-base shadow-inner focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                 />
+                <span className="text-[9.5px] text-slate-400 mt-1 block">Faturamento acumulado para cálculo do divisor</span>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mt-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1">Receita Média do Mês Atual (Projeção)</label>
-                <CurrencyInput value={receitaMes} onChange={setReceitaMes} 
-                  className="w-full p-3 rounded-lg border border-brand-300 bg-white text-brand-900 font-bold text-lg shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition"
+              {/* FOLHA 12M */}
+              <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-slate-50 transition-all">
+                <label className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 mb-1 flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5 text-indigo-500" />
+                  Folha + Pró-Labore 12m (FS12)
+                </label>
+                <CurrencyInput 
+                  value={folha12} 
+                  onChange={setFolha12} 
+                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white font-black text-slate-900 text-base shadow-inner focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                 />
-                <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed">
-                  Utilizada para calcular o DAS do mês e quanto de Pró-Labore será necessário HOJE para não cair no Anexo V.
+                <span className="text-[9.5px] text-slate-400 mt-1 block">Salários, pró-labores e encargos efetivamente pagos</span>
+              </div>
+
+              {/* RECEITA DO MÊS - COM ESCLARECIMENTO DE MÉDIA MÓVEL (ITEM A) */}
+              <div className="p-3.5 rounded-2xl bg-amber-50/40 border border-amber-200/70 hover:bg-amber-50/60 transition-all">
+                <label className="block text-[11px] font-extrabold uppercase tracking-wide text-amber-950 mb-1 flex items-center gap-1">
+                  <Briefcase className="w-3.5 h-3.5 text-amber-600" />
+                  Receita Projetada do Mês Atual
+                </label>
+                <CurrencyInput 
+                  value={receitaMes} 
+                  onChange={setReceitaMes} 
+                  className="w-full p-2.5 rounded-xl border border-amber-300 bg-white font-black text-amber-900 text-base shadow-inner focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                />
+                <p className="text-[10px] text-amber-800/80 mt-1.5 leading-relaxed">
+                  Projeção da competência atual para apurar o DAS. O enquadramento definitivo do Simples Nacional utiliza a <b>média móvel acumulada dos últimos 12 meses</b> (FS12 ÷ RBT12).
                 </p>
               </div>
 
-              <label className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition shadow-sm">
-                <input type="checkbox" checked={socioNoTeto} onChange={e=>setSocioNoTeto(e.target.checked)} className="w-5 h-5 text-brand-600 rounded border-slate-400"/>
-                <span className="text-xs font-bold text-slate-700">Sócio já recolhe pelo Teto do INSS em outro CNPJ</span>
+              {/* TOGGLE SÓCIO NO TETO */}
+              <label className="flex items-start gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100/80 transition-all shadow-2xs">
+                <input 
+                  type="checkbox" 
+                  checked={socioNoTeto} 
+                  onChange={e => setSocioNoTeto(e.target.checked)} 
+                  className="mt-0.5 w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 cursor-pointer"
+                />
+                <div className="text-xs">
+                  <span className="font-bold text-slate-800 block">Sócio no Teto do INSS</span>
+                  <span className="text-[10px] text-slate-500 leading-tight block mt-0.5">
+                    Já recolhe pelo teto máximo (R$ 8.157,41) em outro CNPJ ou vínculo CLT (INSS adicional = R$ 0,00).
+                  </span>
+                </div>
               </label>
+
             </div>
           </div>
         </div>
 
-        {/* AUDITORIA E RESULTADOS (Lado Direito) */}
+        {/* COLUNA DIREITA: RESULTADOS & AUDITORIA */}
         <div className="xl:col-span-8 space-y-6">
           
+          {/* CARDS TOPO: MEDIDOR 28% + STATUS DO ENQUADRAMENTO */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-200 flex flex-col justify-center items-center text-center shadow-sm">
-              <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3">
-                <PieChart className="w-6 h-6 text-slate-400" />
+            
+            {/* CARD 1: MEDIDOR VISUAL DO FATOR R */}
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <PieChart className="w-3.5 h-3.5 text-slate-400" />
+                    Proporção da Folha (Fator R)
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                    atingiuMeta ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {atingiuMeta ? 'Meta Batida' : 'Abaixo da Meta'}
+                  </span>
+                </div>
+
+                <div className={`text-4xl lg:text-5xl font-black tracking-tight font-mono ${
+                  atingiuMeta ? 'text-emerald-600' : 'text-amber-500'
+                }`}>
+                  {formatPercent(res.fatorR)}
+                </div>
               </div>
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Proporção Atingida (Fator R)</span>
-              <div className={`text-5xl font-black mt-2 tracking-tighter ${res.enquadraAnexo3 ? 'text-emerald-600' : 'text-amber-500'}`}>
-                {formatPercent(res.fatorR)}
+
+              {/* RÉGUA VISUAL COM O CORTE EM 28% */}
+              <div className="mt-4 pt-3 border-t border-slate-100">
+                <div className="relative w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-700 ease-out rounded-full ${
+                      atingiuMeta ? 'bg-emerald-500' : 'bg-amber-400'
+                    }`}
+                    style={{ width: `${progressoBarra}%` }}
+                  />
+                  {/* Linha de corte dos 28% */}
+                  <div 
+                    className="absolute top-0 bottom-0 w-[2px] bg-slate-900 z-10" 
+                    style={{ left: '28%' }}
+                    title="Corte Legal: 28,00%"
+                  />
+                </div>
+                <div className="flex justify-between items-center text-[10px] font-mono text-slate-400 mt-1.5">
+                  <span>0%</span>
+                  <span className="font-bold text-slate-700">Meta: 28,00%</span>
+                  <span>100%</span>
+                </div>
               </div>
-              <span className="text-xs font-bold text-slate-500 mt-2 bg-slate-50 px-3 py-1 rounded-md border border-slate-100">
-                Meta de Conformidade: 28,00%
+            </div>
+
+            {/* CARD 2: STATUS DO ENQUADRAMENTO */}
+            <div className={`rounded-3xl border p-6 shadow-sm flex flex-col justify-between transition-all ${
+              atingiuMeta 
+                ? 'bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white border-emerald-300 ring-2 ring-emerald-500/20' 
+                : 'bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-white border-amber-300 ring-2 ring-amber-500/20'
+            }`}>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  {atingiuMeta ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-amber-600" />
+                  )}
+                  <span className={`text-[10px] font-black uppercase tracking-wider ${
+                    atingiuMeta ? 'text-emerald-800' : 'text-amber-800'
+                  }`}>
+                    Enquadramento Fiscal
+                  </span>
+                </div>
+
+                <div className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                  {res.anexo}
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  {atingiuMeta 
+                    ? 'Tributado pela tabela reduzida do Simples Nacional.' 
+                    : 'Sujeito à tributação mais gravosa do Simples Nacional.'}
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs font-mono">
+                <span className="text-slate-600 font-sans">Alíquota Efetiva:</span>
+                <span className={`text-base font-black ${atingiuMeta ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  {formatPercent(atingiuMeta ? res.aliqAnexo3 : res.aliqAnexo5)}
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* CARD MASTER: BALANÇO FINANCEIRO MENSAL */}
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 lg:p-7 shadow-sm space-y-6">
+            
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-emerald-600" />
+                Balanço Financeiro Mensal (Tributação Marginal)
+              </h3>
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">
+                Competência Atual
               </span>
             </div>
 
-            <div className={`p-6 rounded-2xl border shadow-sm flex flex-col justify-center ${res.enquadraAnexo3 ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
-              <div className="flex items-center gap-3 mb-3">
-                {res.enquadraAnexo3 ? <CheckCircle2 className="w-6 h-6 text-emerald-600"/> : <AlertCircle className="w-6 h-6 text-amber-600"/>}
-                <span className={`text-sm font-bold uppercase tracking-wider ${res.enquadraAnexo3 ? 'text-emerald-800' : 'text-amber-800'}`}>
-                  Status do Enquadramento
-                </span>
-              </div>
-              <div className="text-2xl font-black text-slate-900 tracking-tight">{res.anexo}</div>
-              <div className="mt-3 text-sm font-medium opacity-80">
-                Alíquota Efetiva Aplicada: <b className="text-lg">{formatPercent(res.enquadraAnexo3 ? res.aliqAnexo3 : res.aliqAnexo5)}</b>
-              </div>
-            </div>
-          </div>
-
-          <div className="glass-panel p-6 lg:p-8 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-6 flex items-center gap-2 text-lg">
-              <DollarSign className="w-6 h-6 text-emerald-600" /> Balanço Financeiro Mensal
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Box de Economia do CNPJ */}
-              <div className="space-y-4">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-2">
-                  1. Economia no CNPJ (DAS)
+              {/* BOX 1: ECONOMIA NO CNPJ (DAS) */}
+              <div className="p-4 rounded-2xl bg-emerald-50/40 border border-emerald-200/80 space-y-3">
+                <div className="text-[11px] font-black uppercase tracking-wider text-emerald-900 flex items-center justify-between">
+                  <span>1. Economia no CNPJ (Guia DAS)</span>
+                  <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">Empresa</span>
                 </div>
-                <div className="space-y-2 font-mono text-sm">
+                
+                <div className="space-y-1.5 font-mono text-xs">
                   <div className="flex justify-between text-slate-600">
                     <span>Imposto no Anexo V:</span>
-                    <span>{formatCurrency(res.dasAnexo5)}</span>
+                    <span className="font-semibold">{formatCurrency(res.dasAnexo5)}</span>
                   </div>
                   <div className="flex justify-between text-slate-600">
                     <span>Imposto no Anexo III:</span>
-                    <span>{formatCurrency(res.dasAnexo3)}</span>
+                    <span className="font-semibold">{formatCurrency(res.dasAnexo3)}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-emerald-50 p-2.5 rounded-lg border border-emerald-100 font-bold text-emerald-700 mt-2">
-                    <span>Redução Bruta na Guia:</span>
-                    <span>+{formatCurrency(res.diferencaDasBruta)}</span>
+                  <div className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-emerald-200 font-bold text-emerald-800 mt-2 shadow-2xs">
+                    <span className="text-[11px]">Redução Bruta na Guia:</span>
+                    <span className="text-sm font-black">+{formatCurrency(res.diferencaDasBruta)}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Box de Custo Extra CPF */}
-              <div className="space-y-4">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-100 pb-2">
-                  2. Custo Marginal no CPF (Sócio)
+              {/* BOX 2: CUSTO MARGINAL NO CPF (SÓCIO) */}
+              <div className="p-4 rounded-2xl bg-rose-50/40 border border-rose-200/80 space-y-3">
+                <div className="text-[11px] font-black uppercase tracking-wider text-rose-900 flex items-center justify-between">
+                  <span>2. Custo Marginal no CPF (Sócio)</span>
+                  <span className="text-[9px] bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded">Pessoa Física</span>
                 </div>
-                <div className="space-y-2 font-mono text-sm">
-                  <div className="flex justify-between text-rose-600">
+
+                <div className="space-y-1.5 font-mono text-xs">
+                  <div className="flex justify-between text-rose-700">
                     <span>INSS Extra Retido:</span>
-                    <span>-{formatCurrency(res.inssSocioIncremental)}</span>
+                    <span className="font-semibold">-{formatCurrency(res.inssSocioIncremental)}</span>
                   </div>
-                  <div className="flex justify-between text-rose-600">
+                  <div className="flex justify-between text-rose-700">
                     <span>IRPF Extra Retido:</span>
-                    <span>-{formatCurrency(res.irpfSocioIncremental)}</span>
+                    <span className="font-semibold">-{formatCurrency(res.irpfSocioIncremental)}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-rose-50 p-2.5 rounded-lg border border-rose-100 font-bold text-rose-700 mt-2">
-                    <span>Custo Total Extra no CPF:</span>
-                    <span>-{formatCurrency(res.custoTotalCpfIncremental)}</span>
+                  <div className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-rose-200 font-bold text-rose-800 mt-2 shadow-2xs">
+                    <span className="text-[11px]">Custo Total Extra no CPF:</span>
+                    <span className="text-sm font-black">-{formatCurrency(res.custoTotalCpfIncremental)}</span>
                   </div>
                 </div>
               </div>
+
             </div>
 
-            {/* Linha de Resultado Final */}
-            <div className="flex justify-between items-center p-5 bg-slate-900 text-white rounded-xl mt-8 shadow-md">
-              <span className="font-bold text-base sm:text-lg">Economia LÍQUIDA Real da Operação:</span>
-              <span className={`font-black text-2xl sm:text-3xl font-mono ${res.economiaLiquidaReal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            {/* BANNER RESULTADO FINAL: ECONOMIA LÍQUIDA REAL */}
+            <div className="p-5 lg:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-950 text-white rounded-2xl shadow-lg border border-slate-700/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 block mb-0.5">
+                  Resultado Consolidado (CNPJ − CPF)
+                </span>
+                <span className="font-black text-base sm:text-lg tracking-tight">
+                  Economia LÍQUIDA Real da Operação:
+                </span>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Ganho financeiro efetivo que sobra limpo no caixa após recolher os impostos da empresa e do sócio.
+                </p>
+              </div>
+
+              <div className="font-mono text-3xl sm:text-4xl font-black tracking-tight text-emerald-400 self-start sm:self-auto bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700">
                 {formatCurrency(res.economiaLiquidaReal)}
-              </span>
+              </div>
             </div>
+
           </div>
 
-          {!res.enquadraAnexo3 && (
-            <div className="p-6 border border-amber-200 bg-amber-50 rounded-2xl flex flex-col sm:flex-row items-start gap-5 shadow-sm">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-amber-200 flex-shrink-0">
-                <TrendingUp className="w-6 h-6 text-amber-600" />
-              </div>
-              <div className="w-full">
-                <h4 className="font-extrabold text-amber-900 text-base">Plano de Ação Sugerido</h4>
-                <p className="text-sm text-amber-800 mt-1 leading-relaxed">
-                  Para que a <b>Receita de {formatCurrency(parseNumberInput(receitaMes))}</b> seja tributada no Anexo III, o Pró-Labore deste mês precisa ser ajustado.
-                </p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 font-mono text-xs">
-                  <div className="bg-white p-3 rounded-xl border border-amber-100">
-                    <span className="text-slate-500 block mb-1 font-sans font-semibold text-[11px] uppercase">Pró-Labore Ideal Mínimo (28%):</span>
-                    <span className="font-bold text-amber-700 text-base">{formatCurrency(res.proLaboreIdeal)}</span>
+          {/* PLANO DE AÇÃO INTELIGENTE (QUANDO ABAIXO DOS 28%) - COM REFORÇO NORMATIVO (ITEM B) */}
+          {!atingiuMeta && (
+            <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50/80 via-white to-amber-50/30 p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="w-11 h-11 rounded-2xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm shadow-amber-500/30">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <div className="w-full">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-black text-amber-950 text-base">
+                      Plano de Ação Estratégico Sugerido
+                    </h4>
+                    <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                      Competência Atual
+                    </span>
                   </div>
-                  <div className="bg-white p-3 rounded-xl border border-amber-100">
-                    <span className="text-slate-500 block mb-1 font-sans font-semibold text-[11px] uppercase">Aumento Necessário na Folha:</span>
-                    <span className="font-bold text-rose-600 text-base">+{formatCurrency(res.faltaMesProlabore)}</span>
+
+                  <p className="text-xs text-amber-900/90 mt-1.5 leading-relaxed">
+                    Para que a receita de <b>{formatCurrency(parseNumberInput(receitaMes))}</b> seja faturada na alíquota reduzida do <b>Anexo III</b>, a retirada de Pró-Labore deste mês precisa ser ajustada:
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 font-mono text-xs">
+                    <div className="bg-white p-3.5 rounded-2xl border border-amber-200 shadow-2xs">
+                      <span className="text-[10px] font-sans font-extrabold uppercase text-slate-500 block mb-1">
+                        Pró-Labore Ideal Mínimo (28%):
+                      </span>
+                      <span className="text-base font-black text-amber-800">
+                        {formatCurrency(res.proLaboreIdeal)}
+                      </span>
+                    </div>
+
+                    <div className="bg-white p-3.5 rounded-2xl border border-amber-200 shadow-2xs">
+                      <span className="text-[10px] font-sans font-extrabold uppercase text-slate-500 block mb-1">
+                        Aumento Necessário na Folha:
+                      </span>
+                      <span className="text-base font-black text-rose-600">
+                        +{formatCurrency(res.faltaMesProlabore)}
+                      </span>
+                    </div>
                   </div>
+
+                  {/* NOTA PREVIDENCIÁRIA TÉCNICA (ITEM B) */}
+                  <p className="text-[10px] text-amber-800/80 mt-3 font-sans italic">
+                    * O pró-labore deve observar o piso salarial da categoria ou o salário mínimo vigente. Alterações devem ser escrituradas na folha da competência corrente (a legislação previdenciária não admite recolhimento retroativo para enquadramento fiscal).
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-500 flex items-start gap-2 font-mono">
-            <Info className="w-4 h-4 text-brand-600 flex-shrink-0 mt-0.5" />
-            <span>Memória Marginal: O custo de IRPF e INSS exibido acima é calculado subtraindo o imposto da folha ideal (Anexo III) pelo imposto da folha atual (Anexo V), respeitando a progressividade e teto do INSS.</span>
+          {/* PLANO DE AÇÃO: CONFORMIDADE ATINGIDA */}
+          {atingiuMeta && (
+            <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm shadow-emerald-600/30">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-black text-emerald-950 text-base">
+                    Empresa em Conformidade com o Anexo III
+                  </h4>
+                  <p className="text-xs text-emerald-900/90 mt-0.5 leading-relaxed">
+                    Sua proporção atual de <b>{formatPercent(res.fatorR)}</b> supera o corte legal de 28,00%. A empresa já está economizando <b>{formatCurrency(res.diferencaDasBruta)}/mês</b> na guia unificada do Simples Nacional.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* NOTA DE AUDITORIA & METODOLOGIA */}
+          <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-[11px] text-slate-500 flex items-start gap-2.5 font-mono">
+            <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <span className="leading-relaxed">
+              <b>Memória Marginal Qualibra:</b> O custo de IRPF e INSS do sócio é apurado subtraindo o imposto da folha ideal (Anexo III) pelo imposto da folha atual (Anexo V), respeitando a progressividade da tabela mensal da Receita Federal e a trava do teto do RGPS.
+            </span>
           </div>
 
         </div>
+
       </div>
     </div>
   );
 }
+
+export default SimuladorFatorRPage;
