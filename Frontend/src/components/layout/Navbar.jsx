@@ -63,10 +63,10 @@ export function Navbar() {
       ]
     },
     {
-      title: 'Processos & Rotinas',
+      title: 'Processos & Conformidade (POP)',
       items: [
-        { label: 'Checklists Operacionais', path: '/checklists', icon: CheckSquare },
-        { label: 'Calendário Fiscal & Vencimentos', path: '/obrigacoes', icon: CalendarDays },
+        { label: 'Protocolos & Checklists (POP)', path: '/checklists', icon: CheckSquare, badge: 'Laudos A4' },
+        { label: 'Calendário Fiscal & Vencimentos', path: '/obrigacoes', icon: CalendarDays, badge: 'Perpétuo' },
       ]
     },
     {
@@ -84,13 +84,13 @@ export function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/70 shadow-xs transition-all">
-        {/* Linha prismática sutil com micro-brilho */}
+        {/* Linha prismática sutil */}
         <div className="h-[2.5px] w-full bg-gradient-to-r from-emerald-500 via-amber-400 via-rose-500 via-purple-600 to-cyan-500 opacity-80 shadow-xs"></div>
 
         <div className="px-4 lg:px-8 py-2.5">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             
-            {/* LADO ESQUERDO: Botão Menu + Logo Qualibra */}
+            {/* LADO ESQUERDO */}
             <div className="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
               <button
                 onClick={() => setDrawerOpen(true)}
@@ -116,7 +116,7 @@ export function Navbar() {
               >
                 <div className="flex items-center gap-2.5">
                   <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" />
-                  <span className="text-slate-500 group-hover:text-slate-700">Buscar ferramentas, cálculos, leis...</span>
+                  <span className="text-slate-500 group-hover:text-slate-700">Buscar ferramentas, POPs, leis...</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <kbd className="font-mono text-[10px] font-bold bg-white border border-slate-200 shadow-2xs px-1.5 py-0.5 rounded text-slate-500">
@@ -126,10 +126,9 @@ export function Navbar() {
               </button>
             </div>
 
-            {/* LADO DIREITO: Telemetria + Ações Rápidas */}
+            {/* LADO DIREITO */}
             <div className="flex items-center space-x-2 sm:space-x-2.5 flex-shrink-0">
               
-              {/* Telefone com Discagem */}
               <a 
                 href="tel:1128974595" 
                 className="hidden xl:flex items-center gap-1.5 bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-300/70 px-2.5 py-1.5 rounded-xl text-xs font-mono font-bold text-slate-700 hover:text-amber-900 transition-all duration-200 shadow-2xs"
@@ -139,10 +138,9 @@ export function Navbar() {
                 <span>(11) 2897-4595</span>
               </a>
 
-              {/* Telemetria Viva (Ping a cada 2s) */}
               <div 
                 className="hidden sm:flex items-center gap-1.5 bg-slate-50/90 border border-slate-200/90 px-2.5 py-1.5 rounded-xl text-xs font-mono shadow-2xs"
-                title="Latência de conexão interna com o servidor T130"
+                title="Latência com o servidor T130"
               >
                 <span className="relative flex h-2 w-2">
                   <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
@@ -157,7 +155,6 @@ export function Navbar() {
                 </span>
               </div>
 
-              {/* Botão Enviar Ideia */}
               <Link
                 to="/ideias"
                 className="flex items-center gap-1.5 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border border-amber-200/90 text-amber-900 px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all duration-200 shadow-2xs hover:shadow-xs active:scale-95"
@@ -167,13 +164,11 @@ export function Navbar() {
                 <span className="hidden sm:inline">Ideias</span>
               </Link>
 
-              {/* Relógio em Tempo Real */}
               <div className="hidden lg:flex items-center space-x-1.5 bg-slate-100/90 border border-slate-200/90 px-3 py-1.5 rounded-xl text-xs font-mono font-bold text-slate-700 shadow-2xs">
                 <Clock className="w-3.5 h-3.5 text-slate-500" />
                 <span>{time || '--:--:--'}</span>
               </div>
 
-              {/* Hub Geral (quando fora da Home) */}
               {!isHome && (
                 <Link
                   to="/dashboard"
@@ -198,7 +193,6 @@ export function Navbar() {
           />
           <div className="relative w-full max-w-sm bg-white h-full shadow-2xl border-r border-slate-200 flex flex-col z-10 animate-fade-in-up">
             
-            {/* Header Drawer */}
             <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
               <QualibraLogo size="sm" showText={true} />
               <button
@@ -209,7 +203,6 @@ export function Navbar() {
               </button>
             </div>
 
-            {/* Menu List */}
             <div className="overflow-y-auto p-4 space-y-6 flex-grow">
               <Link
                 to="/dashboard"
@@ -264,7 +257,6 @@ export function Navbar() {
               ))}
             </div>
 
-            {/* Footer Drawer */}
             <div className="p-3.5 border-t border-slate-200 bg-slate-50 text-[11px] font-mono text-slate-500 flex justify-between items-center">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />

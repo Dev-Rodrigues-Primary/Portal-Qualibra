@@ -1,4 +1,4 @@
-export const PORTAL_REGISTRY = [
+﻿export const PORTAL_REGISTRY = [
   // --- CÁLCULOS TRIBUTÁRIOS ---
   {
     id: 'reforma-tributaria',
@@ -88,7 +88,7 @@ export const PORTAL_REGISTRY = [
   // --- PROCESSOS & CONFORMIDADE ---
   {
     id: 'checklists-hub',
-    title: 'Checklists Operacionais de Processos',
+    title: 'Protocolos & Checklists (POP) de Processos',
     category: 'processos',
     subCategory: 'Processos',
     type: 'Checklist',
