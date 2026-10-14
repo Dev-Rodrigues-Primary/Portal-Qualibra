@@ -17,7 +17,9 @@ import {
   Sparkles, 
   HelpCircle,
   Briefcase,
-  Users
+  Users,
+  AlertTriangle,
+  Calendar
 } from 'lucide-react';
 
 export function SimuladorSimplesPresumidoPage() {
@@ -39,15 +41,22 @@ export function SimuladorSimplesPresumidoPage() {
   const simplesVence = res.simplesVence;
   const economiaMensal = res.economiaAnual / 12;
 
+  // Decomposição Oficial Trimestral (Lei 9.430/1996 - Item 1 Auditoria)
+  const fatTrimestralMedio = (parseNumberInput(faturamento) || 0) / 4;
+  const percPresuncao = isServico ? 0.32 : 0.08;
+  const basePresumidaTrimestral = fatTrimestralMedio * percPresuncao;
+  const excedenteTrimestral = Math.max(0, basePresumidaTrimestral - 60000);
+  const adicionalIrpjTrimestral = excedenteTrimestral * 0.10;
+
   return (
     <div className="space-y-6 pb-16 animate-fade-in-up">
       
-      {/* NAVEGAÇÃO / BREADCRUMBS */}
+      {/* BREADCRUMBS */}
       <div className="no-print">
         <Breadcrumbs items={[{ label: 'Planejamento Tributário' }, { label: 'Simples Nacional vs Lucro Presumido' }]} />
       </div>
 
-      {/* HEADER EXECUTIVO PREMIUM */}
+      {/* HEADER EXECUTIVO */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 p-6 lg:p-8 text-white shadow-xl border border-slate-700/60">
         <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
         <div className="absolute right-32 -bottom-20 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
@@ -57,10 +66,10 @@ export function SimuladorSimplesPresumidoPage() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 backdrop-blur-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                Planejamento Tributário Anual
+                Planejamento Tributário Anual & Trimestral
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                <ShieldCheck className="w-3 h-3" /> Lei 9.718/98 & LC 123/2006
+                <ShieldCheck className="w-3 h-3" /> Lei 9.718/98 & Lei 9.430/96
               </span>
             </div>
 
@@ -68,7 +77,7 @@ export function SimuladorSimplesPresumidoPage() {
               Simples Nacional vs. Lucro Presumido
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
-              Compare a carga tributária real projetada, detalhando presunção de IRPJ (32%/8%) e CSLL (32%/12%), adicional de 10% e o impacto decisivo da Contribuição Previdenciária Patronal (CPP ~28,3%) sobre a folha.
+              Compare a carga tributária real projetada, detalhando presunção de IRPJ/CSLL, a regra trimestral da Lei 9.430/96 (adicional de 10% s/ excedente a R$ 60k/tri) e a CPP Patronal de ~28,3%.
             </p>
           </div>
 
@@ -84,7 +93,7 @@ export function SimuladorSimplesPresumidoPage() {
         </div>
       </div>
 
-      {/* GRID DE TRABALHO: INPUTS vs RESULTADOS */}
+      {/* GRID DE TRABALHO */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         
         {/* COLUNA ESQUERDA: PARÂMETROS PROJETADOS */}
@@ -103,8 +112,7 @@ export function SimuladorSimplesPresumidoPage() {
 
             <div className="space-y-4">
               
-              {/* FATURAMENTO ANUAL */}
-              <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-slate-50 transition-all">
+              <div>
                 <label className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 mb-1 flex items-center gap-1.5">
                   <DollarSign className="w-3.5 h-3.5 text-indigo-600" />
                   Faturamento Bruto Anual (R$)
@@ -114,11 +122,9 @@ export function SimuladorSimplesPresumidoPage() {
                   onChange={setFaturamento} 
                   className="w-full p-2.5 rounded-xl border border-slate-300 bg-white font-black text-slate-900 text-base shadow-inner focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                 />
-                <span className="text-[9.5px] text-slate-400 mt-1 block">Receita total projetada para o ano-calendário</span>
               </div>
 
-              {/* FOLHA ANUAL */}
-              <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-slate-50 transition-all">
+              <div>
                 <label className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 mb-1 flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5 text-indigo-500" />
                   Folha Salarial + Pró-Labore Anual (R$)
@@ -128,16 +134,15 @@ export function SimuladorSimplesPresumidoPage() {
                   onChange={setFolha} 
                   className="w-full p-2.5 rounded-xl border border-slate-300 bg-white font-black text-slate-900 text-base shadow-inner focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                 />
-                <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                  Base que gera <b>28,3% de CPP Patronal</b> no Lucro Presumido e no Anexo IV do Simples.
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Gera <b>28,3% de CPP Patronal</b> no Lucro Presumido e no Anexo IV.
                 </p>
               </div>
 
-              {/* ENQUADRAMENTO NO SIMPLES */}
-              <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-slate-50 transition-all">
+              <div>
                 <label className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 mb-1 flex items-center gap-1.5">
                   <Briefcase className="w-3.5 h-3.5 text-slate-500" />
-                  Enquadramento de Atividade no Simples
+                  Enquadramento no Simples Nacional
                 </label>
                 <select 
                   value={anexo} 
@@ -146,12 +151,11 @@ export function SimuladorSimplesPresumidoPage() {
                 >
                   <option value="III">Anexo III — Serviços (ISS 6% inicial • CPP Inclusa no DAS)</option>
                   <option value="I">Anexo I — Comércio (ICMS 4% inicial • CPP Inclusa no DAS)</option>
-                  <option value="IV">Anexo IV — Serviços (Advocacia, Construção • CPP de 20% FORA)</option>
+                  <option value="IV">Anexo IV — Serviços (Advocacia, Construção • CPP 20% FORA)</option>
                   <option value="V">Anexo V — Serviços (Tecnologia, Consultoria s/ Fator R)</option>
                 </select>
               </div>
 
-              {/* ALÍQUOTAS LOCAIS (ISS ou ICMS) */}
               <div className="grid grid-cols-2 gap-3">
                 <div className={`p-3 rounded-2xl border transition-all ${
                   isServico ? 'bg-indigo-50/40 border-indigo-200/80' : 'bg-slate-50 border-slate-200 opacity-60'
@@ -167,7 +171,7 @@ export function SimuladorSimplesPresumidoPage() {
                     value={iss} 
                     onChange={e => setIss(e.target.value)} 
                     disabled={!isServico}
-                    className="w-full p-2 rounded-xl border border-slate-300 font-bold text-slate-900 bg-white text-sm shadow-inner text-center focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    className="w-full p-2 rounded-xl border border-slate-300 font-bold text-slate-900 bg-white text-sm shadow-inner text-center"
                   />
                   <span className="text-[9.5px] text-slate-400 mt-1 block text-center">Município (2% a 5%)</span>
                 </div>
@@ -186,7 +190,7 @@ export function SimuladorSimplesPresumidoPage() {
                     value={icms} 
                     onChange={e => setIcms(e.target.value)} 
                     disabled={isServico}
-                    className="w-full p-2 rounded-xl border border-slate-300 font-bold text-slate-900 bg-white text-sm shadow-inner text-center focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    className="w-full p-2 rounded-xl border border-slate-300 font-bold text-slate-900 bg-white text-sm shadow-inner text-center"
                   />
                   <span className="text-[9.5px] text-slate-400 mt-1 block text-center">Estado (Comércio)</span>
                 </div>
@@ -196,10 +200,10 @@ export function SimuladorSimplesPresumidoPage() {
           </div>
         </div>
 
-        {/* COLUNA DIREITA: RESULTADOS & DECOMPOSIÇÃO */}
+        {/* COLUNA DIREITA: RESULTADOS & AUDITORIA TRIMESTRAL */}
         <div className="xl:col-span-7 space-y-6">
           
-          {/* CARD DE DECISÃO ESTRATÉGICA */}
+          {/* VEREDITO */}
           <div className={`relative overflow-hidden rounded-3xl border p-6 lg:p-7 shadow-sm transition-all duration-300 hover:shadow-md ${
             simplesVence 
               ? 'bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white border-emerald-200 shadow-emerald-500/5' 
@@ -236,7 +240,6 @@ export function SimuladorSimplesPresumidoPage() {
               </div>
             </div>
 
-            {/* IMPACTO FINANCEIRO RESUMIDO */}
             <div className="mt-5 pt-4 border-t border-slate-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div className="text-slate-600 leading-relaxed">
                 A opção pelo {simplesVence ? <b>Simples Nacional</b> : <b>Lucro Presumido</b>} gera uma economia anual líquida estimada de:
@@ -255,14 +258,11 @@ export function SimuladorSimplesPresumidoPage() {
             </div>
           </div>
 
-          {/* CARDS COMPARATIVOS LADO A LADO */}
+          {/* CARDS COMPARATIVOS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            {/* CARD 1: SIMPLES NACIONAL */}
             <div className={`relative rounded-3xl border p-5 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${
-              simplesVence 
-                ? 'border-emerald-300 ring-2 ring-emerald-500/30' 
-                : 'border-slate-200/90'
+              simplesVence ? 'border-emerald-300 ring-2 ring-emerald-500/30' : 'border-slate-200/90'
             }`}>
               <div className="flex justify-between items-start mb-3">
                 <div>
@@ -283,9 +283,7 @@ export function SimuladorSimplesPresumidoPage() {
                   {formatCurrency(res.totalSimples)}
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  {anexo === 'IV' 
-                    ? 'Guia DAS unificada + 20% CPP Patronal recolhida separadamente.' 
-                    : 'Guia DAS unificada (com CPP patronal 100% inclusa na guia).'}
+                  {anexo === 'IV' ? 'Guia DAS unificada + 20% CPP Patronal fora.' : 'Guia DAS unificada (com CPP patronal 100% inclusa).'}
                 </p>
               </div>
 
@@ -295,11 +293,8 @@ export function SimuladorSimplesPresumidoPage() {
               </div>
             </div>
 
-            {/* CARD 2: LUCRO PRESUMIDO */}
             <div className={`relative rounded-3xl border p-5 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${
-              !simplesVence 
-                ? 'border-indigo-300 ring-2 ring-indigo-500/30 shadow-indigo-500/5' 
-                : 'border-slate-200/90'
+              !simplesVence ? 'border-indigo-300 ring-2 ring-indigo-500/30 shadow-indigo-500/5' : 'border-slate-200/90'
             }`}>
               <div className="flex justify-between items-start mb-3">
                 <div>
@@ -322,7 +317,7 @@ export function SimuladorSimplesPresumidoPage() {
                   {formatCurrency(res.totalPresumido)}
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  Tributos federais (IRPJ/CSLL/PIS/COFINS) + ISS/ICMS + CPP Patronal de 28,3%.
+                  IRPJ/CSLL trimestrais + PIS/COFINS cumulativos + CPP 28,3%.
                 </p>
               </div>
 
@@ -334,7 +329,7 @@ export function SimuladorSimplesPresumidoPage() {
 
           </div>
 
-          {/* TABELA DE MEMÓRIA DE CÁLCULO: DECOMPOSIÇÃO LUCRO PRESUMIDO */}
+          {/* TABELA DE MEMÓRIA DE CÁLCULO */}
           <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
               <div className="flex items-center gap-2">
@@ -361,11 +356,9 @@ export function SimuladorSimplesPresumidoPage() {
                   <tr className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3 px-6 font-semibold">
                       <span>IRPJ (Imposto de Renda PJ)</span>
-                      <span className="text-[10px] text-slate-400 font-sans block">Inclui adicional de 10% sobre excedente a R$ 240k</span>
+                      <span className="text-[10px] text-slate-400 font-sans block">Base {isServico ? '32%' : '8%'} × 15% (+10% s/ excedente trimestral a R$ 60k)</span>
                     </td>
-                    <td className="py-3 px-4 text-slate-600 font-bold">
-                      Base {isServico ? '32%' : '8%'} × 15% (+10%)
-                    </td>
+                    <td className="py-3 px-4 text-slate-600 font-bold">Lei 9.430/96</td>
                     <td className="py-3 px-6 text-right font-black text-slate-900">
                       {formatCurrency(res.detalhes?.irpjTotal || 0)}
                     </td>
@@ -374,11 +367,9 @@ export function SimuladorSimplesPresumidoPage() {
                   <tr className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3 px-6 font-semibold">
                       <span>CSLL (Contribuição Social)</span>
-                      <span className="text-[10px] text-slate-400 font-sans block">Incidência sobre lucro presumido trimestral</span>
+                      <span className="text-[10px] text-slate-400 font-sans block">Base {isServico ? '32%' : '12%'} × 9%</span>
                     </td>
-                    <td className="py-3 px-4 text-slate-600 font-bold">
-                      Base {isServico ? '32%' : '12%'} × 9%
-                    </td>
+                    <td className="py-3 px-4 text-slate-600 font-bold">Lei 7.689/88</td>
                     <td className="py-3 px-6 text-right font-black text-slate-900">
                       {formatCurrency(res.detalhes?.csllTotal || 0)}
                     </td>
@@ -387,11 +378,9 @@ export function SimuladorSimplesPresumidoPage() {
                   <tr className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3 px-6 font-semibold">
                       <span>PIS e COFINS</span>
-                      <span className="text-[10px] text-slate-400 font-sans block">Regime cumulativo sobre o faturamento</span>
+                      <span className="text-[10px] text-slate-400 font-sans block">0,65% (PIS) + 3,00% (COFINS) Cumulativos</span>
                     </td>
-                    <td className="py-3 px-4 text-slate-600 font-bold">
-                      0,65% (PIS) + 3,00% (COFINS)
-                    </td>
+                    <td className="py-3 px-4 text-slate-600 font-bold">Lei 9.718/98</td>
                     <td className="py-3 px-6 text-right font-black text-slate-900">
                       {formatCurrency((res.detalhes?.pis || 0) + (res.detalhes?.cofins || 0))}
                     </td>
@@ -400,7 +389,7 @@ export function SimuladorSimplesPresumidoPage() {
                   <tr className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3 px-6 font-semibold">
                       <span>{isServico ? 'ISS Municipal' : 'ICMS Estadual'}</span>
-                      <span className="text-[10px] text-slate-400 font-sans block">Tributo local sobre operações</span>
+                      <span className="text-[10px] text-slate-400 font-sans block">Tributo sobre a receita de operações</span>
                     </td>
                     <td className="py-3 px-4 text-slate-600 font-bold">
                       {isServico ? `${iss}% (ISS)` : `${icms}% (ICMS)`}
@@ -415,11 +404,9 @@ export function SimuladorSimplesPresumidoPage() {
                       <span className="flex items-center gap-1.5 font-bold">
                         CPP Patronal (Previdência Folha)
                       </span>
-                      <span className="text-[10px] text-rose-700/80 font-sans block">20% Patronal + RAT ajustado + Terceiros (Sistema S)</span>
+                      <span className="text-[10px] text-rose-700/80 font-sans block">20% Patronal + RAT + Terceiros (~28,3%)</span>
                     </td>
-                    <td className="py-3 px-4 text-rose-700 font-bold">
-                      ~28,30% sobre Folha
-                    </td>
+                    <td className="py-3 px-4 text-rose-700 font-bold">Lei 8.212/91</td>
                     <td className="py-3 px-6 text-right font-black text-rose-800">
                       {formatCurrency(res.detalhes?.cppPatronalPresumido || 0)}
                     </td>
@@ -427,7 +414,7 @@ export function SimuladorSimplesPresumidoPage() {
 
                   <tr className="bg-slate-900 text-white font-extrabold">
                     <td className="py-4 px-6 uppercase text-xs">Custo Tributário Total (Presumido)</td>
-                    <td className="py-4 px-4 text-indigo-300 font-bold font-mono">100% dos Tributos</td>
+                    <td className="py-4 px-4 text-indigo-300 font-bold font-mono">Total Anual</td>
                     <td className="py-4 px-6 text-right font-black text-emerald-400 text-sm">
                       {formatCurrency(res.totalPresumido)}
                     </td>
@@ -437,12 +424,40 @@ export function SimuladorSimplesPresumidoPage() {
             </div>
           </div>
 
-          {/* INSIGHT ESTRATÉGICO DA AUDITORIA */}
-          <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl text-[11px] text-slate-600 flex items-start gap-3 font-mono">
-            <Info className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
-            <span className="leading-relaxed">
-              <b>O Segredo do Planejamento:</b> No Simples Nacional (Anexos I, III e V), a contribuição previdenciária patronal (CPP) já está 100% embutida na alíquota única do DAS. No Lucro Presumido, a empresa recolhe cerca de <b>28,3% adicionais sobre a folha de salários e pró-labore</b>, tornando o Simples quase imbatível para empresas com folha representativa.
-            </span>
+          {/* CARD DE COMPLIANCE TRIMESTRAL (EVOLUÇÃO ITEM 1 DA AUDITORIA) */}
+          <div className="rounded-3xl border border-indigo-200/80 bg-gradient-to-br from-indigo-50/50 via-white to-slate-50 p-6 shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-indigo-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-indigo-600" />
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                  Regra Trimestral da Lei nº 9.430/1996 (Apuração do IRPJ & CSLL)
+                </h4>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">
+                4 Trimestres Civis
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-center text-xs">
+              {['1º Tri (31/03)', '2º Tri (30/06)', '3º Tri (30/09)', '4º Tri (31/12)'].map((tri, i) => (
+                <div key={i} className="p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                  <span className="text-[10px] font-sans font-bold text-slate-400 block">{tri}</span>
+                  <span className="font-black text-slate-800 text-xs mt-1 block">
+                    {formatCurrency(fatTrimestralMedio)}
+                  </span>
+                  <span className="text-[9px] text-slate-400 font-sans block mt-0.5">
+                    Cota Isenta: R$ 60k
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-xl text-[11px] text-amber-900 flex items-start gap-2 font-sans mt-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <span>
+                <b>Alerta de Sazonalidade Tributária:</b> O IRPJ e a CSLL são devidos por <b>trimestres civis fechados</b>. Esta simulação assume faturamento linear regular. Caso a receita da empresa seja fortemente sazonal (concentrada em um único trimestre), o valor real do adicional de 10% poderá ser ligeiramente superior no trimestre de pico de faturamento.
+              </span>
+            </div>
           </div>
 
         </div>

@@ -17,7 +17,8 @@ import {
   Users, 
   ArrowRight,
   HelpCircle,
-  Briefcase
+  Briefcase,
+  AlertTriangle
 } from 'lucide-react';
 
 export function SimuladorFatorRPage() {
@@ -26,7 +27,6 @@ export function SimuladorFatorRPage() {
   const [receitaMes, setReceitaMes] = useState(100000);
   const [socioNoTeto, setSocioNoTeto] = useState(false);
 
-  // Blindagem de inputs: fallback || 0 evita NaN e divisão por zero
   const res = useMemo(() => calculateFatorRCompleto({
     rbt12: parseNumberInput(rbt12) || 0, 
     folha12: parseNumberInput(folha12) || 0, 
@@ -101,8 +101,7 @@ export function SimuladorFatorRPage() {
 
             <div className="space-y-4">
               
-              {/* RBT12 */}
-              <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-slate-50 transition-all">
+              <div>
                 <label className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 mb-1">
                   Receita Bruta 12 Meses (RBT12)
                 </label>
@@ -114,8 +113,7 @@ export function SimuladorFatorRPage() {
                 <span className="text-[9.5px] text-slate-400 mt-1 block">Faturamento acumulado para cálculo do divisor</span>
               </div>
 
-              {/* FOLHA 12M */}
-              <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-slate-50 transition-all">
+              <div>
                 <label className="block text-[11px] font-extrabold uppercase tracking-wide text-slate-700 mb-1 flex items-center gap-1">
                   <Users className="w-3.5 h-3.5 text-indigo-500" />
                   Folha + Pró-Labore 12m (FS12)
@@ -128,8 +126,7 @@ export function SimuladorFatorRPage() {
                 <span className="text-[9.5px] text-slate-400 mt-1 block">Salários, pró-labores e encargos efetivamente pagos</span>
               </div>
 
-              {/* RECEITA DO MÊS - COM ESCLARECIMENTO DE MÉDIA MÓVEL (ITEM A) */}
-              <div className="p-3.5 rounded-2xl bg-amber-50/40 border border-amber-200/70 hover:bg-amber-50/60 transition-all">
+              <div>
                 <label className="block text-[11px] font-extrabold uppercase tracking-wide text-amber-950 mb-1 flex items-center gap-1">
                   <Briefcase className="w-3.5 h-3.5 text-amber-600" />
                   Receita Projetada do Mês Atual
@@ -144,7 +141,6 @@ export function SimuladorFatorRPage() {
                 </p>
               </div>
 
-              {/* TOGGLE SÓCIO NO TETO */}
               <label className="flex items-start gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100/80 transition-all shadow-2xs">
                 <input 
                   type="checkbox" 
@@ -155,7 +151,7 @@ export function SimuladorFatorRPage() {
                 <div className="text-xs">
                   <span className="font-bold text-slate-800 block">Sócio no Teto do INSS</span>
                   <span className="text-[10px] text-slate-500 leading-tight block mt-0.5">
-                    Já recolhe pelo teto máximo (R$ 8.157,41) em outro CNPJ ou vínculo CLT (INSS adicional = R$ 0,00).
+                    Já recolhe pelo teto máximo (R$ 8.157,41) em outro vínculo (INSS adicional = R$ 0,00).
                   </span>
                 </div>
               </label>
@@ -167,10 +163,9 @@ export function SimuladorFatorRPage() {
         {/* COLUNA DIREITA: RESULTADOS & AUDITORIA */}
         <div className="xl:col-span-8 space-y-6">
           
-          {/* CARDS TOPO: MEDIDOR 28% + STATUS DO ENQUADRAMENTO */}
+          {/* CARDS TOPO: MEDIDOR 28% + STATUS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            {/* CARD 1: MEDIDOR VISUAL DO FATOR R */}
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -192,7 +187,6 @@ export function SimuladorFatorRPage() {
                 </div>
               </div>
 
-              {/* RÉGUA VISUAL COM O CORTE EM 28% */}
               <div className="mt-4 pt-3 border-t border-slate-100">
                 <div className="relative w-full h-3 bg-slate-100 rounded-full overflow-hidden">
                   <div 
@@ -201,7 +195,6 @@ export function SimuladorFatorRPage() {
                     }`}
                     style={{ width: `${progressoBarra}%` }}
                   />
-                  {/* Linha de corte dos 28% */}
                   <div 
                     className="absolute top-0 bottom-0 w-[2px] bg-slate-900 z-10" 
                     style={{ left: '28%' }}
@@ -216,7 +209,6 @@ export function SimuladorFatorRPage() {
               </div>
             </div>
 
-            {/* CARD 2: STATUS DO ENQUADRAMENTO */}
             <div className={`rounded-3xl border p-6 shadow-sm flex flex-col justify-between transition-all ${
               atingiuMeta 
                 ? 'bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white border-emerald-300 ring-2 ring-emerald-500/20' 
@@ -256,7 +248,7 @@ export function SimuladorFatorRPage() {
 
           </div>
 
-          {/* CARD MASTER: BALANÇO FINANCEIRO MENSAL */}
+          {/* BALANÇO FINANCEIRO MENSAL */}
           <div className="rounded-3xl border border-slate-200 bg-white p-6 lg:p-7 shadow-sm space-y-6">
             
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -271,7 +263,6 @@ export function SimuladorFatorRPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* BOX 1: ECONOMIA NO CNPJ (DAS) */}
               <div className="p-4 rounded-2xl bg-emerald-50/40 border border-emerald-200/80 space-y-3">
                 <div className="text-[11px] font-black uppercase tracking-wider text-emerald-900 flex items-center justify-between">
                   <span>1. Economia no CNPJ (Guia DAS)</span>
@@ -294,7 +285,6 @@ export function SimuladorFatorRPage() {
                 </div>
               </div>
 
-              {/* BOX 2: CUSTO MARGINAL NO CPF (SÓCIO) */}
               <div className="p-4 rounded-2xl bg-rose-50/40 border border-rose-200/80 space-y-3">
                 <div className="text-[11px] font-black uppercase tracking-wider text-rose-900 flex items-center justify-between">
                   <span>2. Custo Marginal no CPF (Sócio)</span>
@@ -319,7 +309,6 @@ export function SimuladorFatorRPage() {
 
             </div>
 
-            {/* BANNER RESULTADO FINAL: ECONOMIA LÍQUIDA REAL */}
             <div className="p-5 lg:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-950 text-white rounded-2xl shadow-lg border border-slate-700/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 block mb-0.5">
@@ -340,7 +329,7 @@ export function SimuladorFatorRPage() {
 
           </div>
 
-          {/* PLANO DE AÇÃO INTELIGENTE (QUANDO ABAIXO DOS 28%) - COM REFORÇO NORMATIVO (ITEM B) */}
+          {/* PLANO DE AÇÃO */}
           {!atingiuMeta && (
             <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50/80 via-white to-amber-50/30 p-6 shadow-sm">
               <div className="flex items-start gap-4">
@@ -381,7 +370,6 @@ export function SimuladorFatorRPage() {
                     </div>
                   </div>
 
-                  {/* NOTA PREVIDENCIÁRIA TÉCNICA (ITEM B) */}
                   <p className="text-[10px] text-amber-800/80 mt-3 font-sans italic">
                     * O pró-labore deve observar o piso salarial da categoria ou o salário mínimo vigente. Alterações devem ser escrituradas na folha da competência corrente (a legislação previdenciária não admite recolhimento retroativo para enquadramento fiscal).
                   </p>
@@ -390,7 +378,6 @@ export function SimuladorFatorRPage() {
             </div>
           )}
 
-          {/* PLANO DE AÇÃO: CONFORMIDADE ATINGIDA */}
           {atingiuMeta && (
             <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 p-6 shadow-sm">
               <div className="flex items-center gap-4">
@@ -408,6 +395,19 @@ export function SimuladorFatorRPage() {
               </div>
             </div>
           )}
+
+          {/* ALERTA DE COMPLIANCE OPERACIONAL (EVOLUÇÃO ITEM 3 DA AUDITORIA) */}
+          <div className="p-4 bg-amber-50/90 border border-amber-200/90 rounded-2xl text-[11px] text-amber-950 flex items-start gap-3 shadow-2xs">
+            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <span className="font-bold uppercase tracking-wide block text-amber-900">
+                Auditoria de Transmissão Prévia (Malha Digital eSocial x PGDAS-D):
+              </span>
+              <p className="leading-relaxed font-sans text-amber-800">
+                Antes de emitir a guia DAS definitiva pelo Anexo III, o analista deve validar se <b>todas as últimas 12 competências da folha estão transmitidas e encerradas no eSocial/DCTFWeb</b>. O robô de malha da Receita Federal cruza o histórico das declarações e pode desenquadrar a empresa retroativamente se constatar omissão ou retificação pendente em meses anteriores.
+              </p>
+            </div>
+          </div>
 
           {/* NOTA DE AUDITORIA & METODOLOGIA */}
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-[11px] text-slate-500 flex items-start gap-2.5 font-mono">
