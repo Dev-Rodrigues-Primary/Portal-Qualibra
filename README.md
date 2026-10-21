@@ -1,6 +1,3 @@
-
-$readmePath = "C:\Users\DR\Documents\DEV\PQ\README.md"
-$readmeContent = @'
 # 🏛️ Grupo Qualibra — Portal de Inteligência Tributária, DP & Gestão (v3.4)
 
 <p align="center">
